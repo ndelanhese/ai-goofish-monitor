@@ -205,7 +205,7 @@ watch(selectedPrompt, async (value) => {
           <CardContent v-if="isReady" class="space-y-4">
             <div class="grid gap-2">
               <Label>API Base URL</Label>
-              <Input v-model="aiSettings.OPENAI_BASE_URL" placeholder="https://api.openai.com/v1" />
+              <Input v-model="aiSettings.OPENAI_BASE_URL" placeholder="http://localhost:11434/v1" />
             </div>
             <div class="grid gap-2">
               <Label>API Key</Label>
@@ -220,7 +220,7 @@ watch(selectedPrompt, async (value) => {
             </div>
             <div class="grid gap-2">
               <Label>{{ t('settings.ai.modelName') }}</Label>
-              <Input v-model="aiSettings.OPENAI_MODEL_NAME" placeholder="gpt-3.5-turbo" />
+              <Input v-model="aiSettings.OPENAI_MODEL_NAME" placeholder="llama3.2-vision" />
             </div>
             <div class="grid gap-2">
               <Label>{{ t('settings.ai.proxy') }}</Label>
@@ -295,7 +295,7 @@ watch(selectedPrompt, async (value) => {
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="p-3 border rounded-lg" :class="systemStatus.env_file.openai_api_key_set ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'">
                         <div class="flex justify-between items-center">
-                            <span class="font-medium text-sm">OpenAI API Key</span>
+                            <span class="font-medium text-sm">AI API Key</span>
                             <span class="text-xs font-bold" :class="systemStatus.env_file.openai_api_key_set ? 'text-green-700' : 'text-yellow-700'">
                                 {{ systemStatus.env_file.openai_api_key_set ? t('common.active') : t('common.inactive') }}
                             </span>
