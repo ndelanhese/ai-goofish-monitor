@@ -1,5 +1,5 @@
 """
-通知客户端工厂
+Notification client factory.
 """
 from src.infrastructure.config.settings import NotificationSettings
 

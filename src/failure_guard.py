@@ -1,12 +1,12 @@
 """Task-level failure circuit breaker.
 
-目标:
-- 当登录态失效/风控导致任务持续失败时，避免无限重试、避免高频请求。
-- 失败达到阈值后暂停任务一段时间。
-- 暂停期间最多每天通知一次，直到用户更新 cookies / 登录态文件后自动恢复。
+Goals:
+- When login state expires or risk control causes repeated task failures, avoid infinite retries and high-frequency requests.
+- Pause the task for a period after failures reach the threshold.
+- During pause, notify at most once per day, until the user updates cookies/login state file for auto-recovery.
 
-说明:
-- 仅使用标准库，既可被 API 主进程使用，也可被爬虫子进程使用。
+Notes:
+- Uses only standard library; can be used by both the API main process and scraper subprocesses.
 """
 
 from __future__ import annotations
@@ -124,7 +124,7 @@ def _read_json_file(path: str) -> dict:
     except FileNotFoundError:
         return {}
     except Exception:
-        # 文件损坏时保留现场，避免无限解析失败。
+        # Preserve the corrupted file to avoid infinite parse failures.
         try:
             ts = str(int(time.time()))
             os.replace(path, f"{path}.corrupt.{ts}")
@@ -234,7 +234,7 @@ class FailureGuard:
 
         paused_until = _str_to_dt(entry.get("paused_until"))
         consecutive = _as_int(entry.get("consecutive_failures"), 0)
-        last_reason = (entry.get("last_failure_reason") or "").strip() or "未知错误"
+        last_reason = (entry.get("last_failure_reason") or "").strip() or "Unknown error"
         last_notified_date = entry.get("last_notified_date")
 
         previous_cookie_mtime = entry.get("cookie_mtime")
@@ -250,7 +250,7 @@ class FailureGuard:
             and cookie_path
             and _cookie_changed(cookie_path, previous_cookie_mtime)
         ):
-            # cookies / 登录态更新 => 自动恢复
+            # cookies / login state updated => auto-resume
             self.record_success(task_key, now=current)
             return SkipDecision(
                 skip=False,
@@ -328,7 +328,7 @@ class FailureGuard:
 
             consecutive = _as_int(entry.get("consecutive_failures"), 0) + 1
             entry["consecutive_failures"] = consecutive
-            entry["last_failure_reason"] = (reason or "未知错误")[:1000]
+            entry["last_failure_reason"] = (reason or "Unknown error")[:1000]
             entry["last_failure_at"] = _dt_to_str(current)
             if cookie_path:
                 entry["cookie_path"] = cookie_path

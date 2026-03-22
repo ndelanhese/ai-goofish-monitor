@@ -1,5 +1,5 @@
 """
-SQLite 启动初始化与旧文件迁移。
+SQLite startup initialisation and legacy file migration.
 """
 from __future__ import annotations
 
@@ -172,20 +172,20 @@ def _import_price_snapshots_if_needed(conn, legacy_price_history_dir: str) -> No
 
 
 def _insert_result_record(conn, record: dict, *, keyword: str, filename: str) -> None:
-    item = record.get("商品信息", {}) or {}
+    item = record.get("product_info", {}) or {}
     analysis = record.get("ai_analysis", {}) or {}
-    link = str(item.get("商品链接") or "")
+    link = str(item.get("product_link") or "")
     if link:
         link_unique_key = link.split("&", 1)[0]
     else:
-        item_id = str(item.get("商品ID") or "").strip()
+        item_id = str(item.get("item_id") or "").strip()
         if item_id:
             link_unique_key = f"item:{item_id}"
         else:
             link_unique_key = "hash:" + hashlib.sha1(
                 json.dumps(record, ensure_ascii=False, sort_keys=True).encode("utf-8")
             ).hexdigest()
-    final_keyword = str(record.get("搜索关键字") or keyword)
+    final_keyword = str(record.get("search_keyword") or keyword)
     result_filename = filename or build_result_filename(final_keyword)
     keyword_hit_count = analysis.get("keyword_hit_count", 0)
     try:
@@ -204,16 +204,16 @@ def _insert_result_record(conn, record: dict, *, keyword: str, filename: str) ->
         (
             result_filename,
             final_keyword,
-            record.get("任务名称", ""),
-            record.get("爬取时间", ""),
-            item.get("发布时间"),
-            _parse_price(item.get("当前售价")),
-            item.get("当前售价"),
-            item.get("商品ID"),
-            item.get("商品标题"),
+            record.get("task_name", ""),
+            record.get("scraped_at", ""),
+            item.get("publish_time"),
+            _parse_price(item.get("current_price")),
+            item.get("current_price"),
+            item.get("item_id"),
+            item.get("product_title"),
             link,
             link_unique_key,
-            (record.get("卖家信息", {}) or {}).get("卖家昵称") or item.get("卖家昵称"),
+            (record.get("seller_info", {}) or {}).get("seller_nickname") or item.get("seller_nickname"),
             _as_int(analysis.get("is_recommended", False)),
             analysis.get("analysis_source"),
             keyword_hit_count,

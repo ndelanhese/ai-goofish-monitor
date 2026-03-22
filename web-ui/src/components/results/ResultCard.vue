@@ -20,8 +20,8 @@ interface Props {
 const props = defineProps<Props>()
 const { t } = useI18n()
 
-const info = props.item.商品信息
-const seller = props.item.卖家信息
+const info = props.item.product_info
+const seller = props.item.seller_info
 const ai = props.item.ai_analysis
 const priceInsight = props.item.price_insight
 
@@ -32,9 +32,9 @@ const recommendationStatus = computed(() => {
   return { label: t('results.card.pending'), color: 'bg-amber-500', icon: AlertCircle, text: 'text-amber-600', bg: 'bg-amber-50' }
 })
 
-const imageUrl = info.商品图片列表?.[0] || info.商品主图链接 || ''
-const crawlTime = props.item.爬取时间
-  ? formatDateTime(props.item.爬取时间, { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+const imageUrl = info.image_list?.[0] || info.main_image_url || ''
+const crawlTime = props.item.scraped_at
+  ? formatDateTime(props.item.scraped_at, { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
   : t('common.unknown')
 const matchScore = ai?.value_score ?? 0
 
@@ -49,7 +49,7 @@ const expanded = ref(false)
       <img
         v-else
         :src="imageUrl"
-        :alt="info.商品标题"
+        :alt="info.product_title"
         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         loading="lazy"
       />
@@ -69,14 +69,14 @@ const expanded = ref(false)
     <CardHeader class="p-4 pb-2">
       <div class="flex justify-between items-start gap-3">
         <CardTitle class="text-base font-semibold text-slate-800 line-clamp-2 leading-snug flex-grow h-10">
-          <a :href="info.商品链接" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors">
-            {{ info.商品标题 }}
+          <a :href="info.product_link" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors">
+            {{ info.product_title }}
           </a>
         </CardTitle>
       </div>
       <div class="flex items-baseline gap-1 mt-2">
-        <span class="text-2xl font-bold text-rose-600 tracking-tight">{{ info.当前售价 }}</span>
-        <span v-if="info['商品原价']" class="text-xs text-slate-400 line-through mb-1">{{ info['商品原价'] }}</span>
+        <span class="text-2xl font-bold text-rose-600 tracking-tight">{{ info.current_price }}</span>
+        <span v-if="info.original_price" class="text-xs text-slate-400 line-through mb-1">{{ info.original_price }}</span>
       </div>
     </CardHeader>
 
@@ -93,10 +93,10 @@ const expanded = ref(false)
              <span class="text-sm font-black" :class="recommendationStatus.text">{{ matchScore }}%</span>
           </div>
         </div>
-        
+
         <div class="w-full h-1.5 bg-white/50 rounded-full overflow-hidden mb-3">
-          <div 
-            class="h-full transition-all duration-1000 ease-out rounded-full" 
+          <div
+            class="h-full transition-all duration-1000 ease-out rounded-full"
             :class="recommendationStatus.color"
             :style="{ width: `${matchScore}%` }"
           ></div>
@@ -105,10 +105,10 @@ const expanded = ref(false)
         <p class="text-xs leading-relaxed text-slate-600" :class="{ 'line-clamp-2': !expanded }">
            {{ ai?.reason || t('results.card.analyzing') }}
         </p>
-        
-        <button 
+
+        <button
           v-if="ai?.reason && ai.reason.length > 50"
-          @click="expanded = !expanded" 
+          @click="expanded = !expanded"
           class="mt-1 text-[10px] font-bold uppercase text-primary/70 hover:text-primary transition-colors flex items-center gap-1"
         >
           {{ expanded ? t('results.card.collapse') : t('results.card.expand') }}
@@ -141,14 +141,14 @@ const expanded = ref(false)
       <div class="flex items-center gap-3 text-slate-400">
         <div class="flex items-center gap-1">
           <User class="w-3 h-3" />
-          <span class="truncate max-w-[60px]">{{ seller.卖家昵称 || info.卖家昵称 || t('results.card.anonymous') }}</span>
+          <span class="truncate max-w-[60px]">{{ seller.seller_nickname || info.seller_nickname || t('results.card.anonymous') }}</span>
         </div>
         <div class="flex items-center gap-1">
           <Clock class="w-3 h-3" />
           <span>{{ crawlTime }}</span>
         </div>
       </div>
-      <a :href="info.商品链接" target="_blank" class="flex items-center gap-1 text-primary font-bold hover:gap-1.5 transition-all">
+      <a :href="info.product_link" target="_blank" class="flex items-center gap-1 text-primary font-bold hover:gap-1.5 transition-all">
         {{ t('results.card.detail') }} <ExternalLink class="w-3 h-3" />
       </a>
     </CardFooter>

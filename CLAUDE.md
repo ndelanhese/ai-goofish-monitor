@@ -2,101 +2,101 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 项目概述
+## Project Overview
 
-基于 Playwright + AI 的闲鱼智能监控机器人。FastAPI 后端 + Vue 3 前端，支持多任务并发监控、多模态 AI 商品分析、多渠道通知推送。
+A Playwright + AI-powered intelligent monitor bot for Goofish (Xianyu). FastAPI backend + Vue 3 frontend, supporting multi-task concurrent monitoring, multimodal AI product analysis, and multi-channel notification delivery.
 
-## 核心架构
+## Core Architecture
 
 ```
-API层 (src/api/routes/)
+API Layer (src/api/routes/)
     ↓
-服务层 (src/services/)
+Service Layer (src/services/)
     ↓
-领域层 (src/domain/)
+Domain Layer (src/domain/)
     ↓
-基础设施层 (src/infrastructure/)
+Infrastructure Layer (src/infrastructure/)
 ```
 
-关键入口：
-- `src/app.py` - FastAPI 应用主入口
-- `spider_v2.py` - 爬虫 CLI 入口
-- `src/scraper.py` - Playwright 爬虫核心逻辑
+Key entry points:
+- `src/app.py` - FastAPI application main entry
+- `spider_v2.py` - Scraper CLI entry
+- `src/scraper.py` - Playwright scraper core logic
 
-服务层：
-- `TaskService` - 任务 CRUD
-- `ProcessService` - 爬虫子进程管理
-- `SchedulerService` - APScheduler 定时调度
-- `AIAnalysisService` - 多模态 AI 分析
-- `NotificationService` - 多渠道通知（ntfy/Bark/企业微信/Telegram/Webhook）
+Service layer:
+- `TaskService` - Task CRUD
+- `ProcessService` - Scraper subprocess management
+- `SchedulerService` - APScheduler scheduled dispatch
+- `AIAnalysisService` - Multimodal AI analysis
+- `NotificationService` - Multi-channel notifications (ntfy/Bark/WeChat Work/Telegram/Webhook)
 
-前端 (`web-ui/`)：Vue 3 + Vite + shadcn-vue + Tailwind CSS
+Frontend (`web-ui/`): Vue 3 + Vite + shadcn-vue + Tailwind CSS
 
-## 开发命令
+## Development Commands
 
 ```bash
-# 后端开发
+# Backend development
 python -m src.app
-# 或
+# or
 uvicorn src.app:app --host 0.0.0.0 --port 8000 --reload
 
-# 前端开发
+# Frontend development
 cd web-ui && npm install && npm run dev
 
-# 前端构建
+# Frontend build
 cd web-ui && npm run build
 
-# 一键本地启动（构建前端 + 启动后端）
+# One-click local start (build frontend + start backend)
 bash start.sh
 
-# Docker 部署
+# Docker deployment
 docker compose up --build -d
 ```
 
-## 爬虫命令
+## Scraper Commands
 
 ```bash
-python spider_v2.py                          # 运行所有启用任务
-python spider_v2.py --task-name "MacBook"    # 运行指定任务
-python spider_v2.py --debug-limit 3          # 调试模式，限制商品数
-python spider_v2.py --config custom.json     # 自定义配置文件
+python spider_v2.py                          # Run all enabled tasks
+python spider_v2.py --task-name "MacBook"    # Run a specific task
+python spider_v2.py --debug-limit 3          # Debug mode, limit product count
+python spider_v2.py --config custom.json     # Custom config file
 ```
 
-## 测试
+## Testing
 
 ```bash
-pytest                              # 运行所有测试
-pytest --cov=src                    # 覆盖率报告
-pytest tests/unit/test_utils.py    # 运行单个测试文件
-pytest tests/unit/test_utils.py::test_safe_get  # 运行单个测试函数
+pytest                              # Run all tests
+pytest --cov=src                    # Coverage report
+pytest tests/unit/test_utils.py    # Run a single test file
+pytest tests/unit/test_utils.py::test_safe_get  # Run a single test function
 ```
 
-测试规范：文件 `tests/**/test_*.py`，函数 `test_*`
+Test conventions: files `tests/**/test_*.py`, functions `test_*`
 
-## 配置
+## Configuration
 
-环境变量 (`.env`)：
-- AI 模型：`OPENAI_API_KEY`, `OPENAI_BASE_URL`, `OPENAI_MODEL_NAME`
-- 通知：`NTFY_TOPIC_URL`, `BARK_URL`, `WX_BOT_URL`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
-- 爬虫：`RUN_HEADLESS`, `LOGIN_IS_EDGE`
-- Web 认证：`WEB_USERNAME`, `WEB_PASSWORD`
-- 端口：`SERVER_PORT`
+Environment variables (`.env`):
+- AI model: `OPENAI_API_KEY`, `OPENAI_BASE_URL`, `OPENAI_MODEL_NAME`
+- Notifications: `NTFY_TOPIC_URL`, `BARK_URL`, `WX_BOT_URL`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
+- Scraper: `RUN_HEADLESS`, `LOGIN_IS_EDGE`
+- Web authentication: `WEB_USERNAME`, `WEB_PASSWORD`
+- Port: `SERVER_PORT`
 
-任务配置 (`config.json`)：定义监控任务（关键词、价格范围、cron 表达式、AI prompt 文件等）
+Task configuration (`config.json`): defines monitoring tasks (keywords, price range, cron expression, AI prompt files, etc.)
 
-## 数据流
+## Data Flow
 
-1. Web UI / config.json 创建任务
-2. SchedulerService 按 cron 触发或手动启动
-3. ProcessService 启动 spider_v2.py 子进程
-4. scraper.py 使用 Playwright 抓取商品
-5. AIAnalysisService 调用多模态模型分析
-6. NotificationService 推送符合条件的商品
-7. 结果存储：`jsonl/`（数据）、`images/`（图片）、`logs/`（日志）
+1. Web UI / config.json creates tasks
+2. SchedulerService triggers on cron or manual start
+3. ProcessService launches spider_v2.py subprocess
+4. scraper.py uses Playwright to scrape products
+5. AIAnalysisService calls multimodal model for analysis
+6. NotificationService pushes matching products
+7. Results stored: `jsonl/` (data), `images/` (images), `logs/` (logs)
 
-## 注意事项
+## Notes
 
-- AI 模型必须支持图片上传（多模态）
-- Docker 部署需通过 Web UI 手动更新登录状态（`state.json`）
-- 遇到滑动验证码时设置 `RUN_HEADLESS=false` 手动处理
-- 生产环境务必修改默认 Web 认证密码
+- The AI model must support image input (multimodal)
+- Docker deployment requires manually updating login state (`state.json`) via Web UI
+- When encountering a slider CAPTCHA, set `RUN_HEADLESS=false` to handle it manually
+- Always change the default Web authentication password in production

@@ -102,7 +102,7 @@ export function useTasks() {
     const task = tasks.value.find((t) => t.id === taskId)
     const previous = task?.is_running
     if (task) {
-      task.is_running = true // 乐观更新：点击后立刻显示运行中
+      task.is_running = true // Optimistic update: show running immediately after click
     }
     try {
       await taskApi.startTask(taskId)

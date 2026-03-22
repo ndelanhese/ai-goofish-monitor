@@ -1,6 +1,6 @@
 """
-通知客户端基类
-定义通知客户端的统一接口
+Notification client base class.
+Defines the unified interface for notification clients.
 """
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -22,60 +22,60 @@ class NotificationMessage:
 
 
 class NotificationClient(ABC):
-    """通知客户端抽象基类"""
+    """Abstract base class for notification clients."""
 
     channel_key = "unknown"
-    display_name = "未知渠道"
+    display_name = "Unknown Channel"
 
     def __init__(self, enabled: bool = False, pcurl_to_mobile: bool = True):
         self._enabled = enabled
         self._pcurl_to_mobile = pcurl_to_mobile
 
     def is_enabled(self) -> bool:
-        """检查客户端是否启用"""
+        """Check whether the client is enabled."""
         return self._enabled
 
     @abstractmethod
     async def send(self, product_data: Dict, reason: str) -> bool:
         """
-        发送通知
+        Send a notification.
 
         Args:
-            product_data: 商品数据
-            reason: 推荐原因
+            product_data: Product data dictionary.
+            reason: Recommendation reason.
 
         Returns:
-            是否发送成功
+            True if the notification was sent successfully.
         """
         raise NotImplementedError
 
     def _build_message(self, product_data: Dict, reason: str) -> NotificationMessage:
-        """格式化消息内容"""
-        title = product_data.get('商品标题', 'N/A')
-        price = product_data.get('当前售价', 'N/A')
-        desktop_link = product_data.get('商品链接', '#')
+        """Format notification message content."""
+        title = product_data.get('product_title', 'N/A')
+        price = product_data.get('current_price', 'N/A')
+        desktop_link = product_data.get('product_link', '#')
         mobile_link = None
 
         if self._pcurl_to_mobile and desktop_link and desktop_link != "#":
             mobile_link = convert_goofish_link(desktop_link)
 
         content_lines = [
-            f"价格: {price}",
-            f"原因: {reason}",
+            f"Price: {price}",
+            f"Reason: {reason}",
         ]
         if mobile_link:
-            content_lines.append(f"手机端链接: {mobile_link}")
-            content_lines.append(f"电脑端链接: {desktop_link}")
+            content_lines.append(f"Mobile link: {mobile_link}")
+            content_lines.append(f"Desktop link: {desktop_link}")
         else:
-            content_lines.append(f"链接: {desktop_link}")
+            content_lines.append(f"Link: {desktop_link}")
 
         short_title = title[:30]
         suffix = "..." if len(title) > 30 else ""
-        notification_title = f"🚨 新推荐! {short_title}{suffix}"
+        notification_title = f"🚨 New Recommendation! {short_title}{suffix}"
 
-        main_image = product_data.get('商品主图链接')
+        main_image = product_data.get('main_image_url')
         if not main_image:
-            image_list = product_data.get('商品图片列表', [])
+            image_list = product_data.get('image_list', [])
             if image_list:
                 main_image = image_list[0]
 

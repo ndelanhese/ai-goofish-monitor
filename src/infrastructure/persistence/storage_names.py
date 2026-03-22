@@ -1,5 +1,5 @@
 """
-SQLite 持久化相关的统一命名规则。
+Unified naming conventions for SQLite persistence.
 """
 from __future__ import annotations
 

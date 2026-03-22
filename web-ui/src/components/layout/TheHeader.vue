@@ -3,8 +3,7 @@ import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import DashboardTaskSearch from '@/components/layout/DashboardTaskSearch.vue'
-import LocaleToggle from '@/components/layout/LocaleToggle.vue'
-import { 
+import {
   Zap, 
   Bell, 
   Search, 
@@ -45,7 +44,7 @@ function goPrompts() {
         <Zap class="w-5 h-5 text-white fill-white" />
       </div>
       <h1 class="text-lg font-black text-slate-800 tracking-tighter">
-        AI <span class="text-primary">Xianyu</span> Hunter
+        AI <span class="text-primary">Goofish</span> Hunter
       </h1>
       <Badge variant="outline" class="ml-2 text-[10px] font-bold border-primary/20 text-primary bg-primary/5 uppercase tracking-widest hidden sm:flex">
         PRO
@@ -71,10 +70,6 @@ function goPrompts() {
 
     <!-- Actions -->
     <div class="flex items-center gap-3">
-      <div class="flex items-center gap-2">
-        <LocaleToggle />
-      </div>
-
       <div class="flex items-center gap-1 sm:gap-2">
          <Button variant="ghost" size="icon" class="rounded-full text-slate-500 hover:text-primary hover:bg-primary/10" @click="goNotifications">
             <Bell class="w-5 h-5" />
@@ -95,7 +90,7 @@ function goPrompts() {
            <UserCircle class="w-6 h-6 text-slate-500" />
         </div>
         <div class="text-left hidden lg:block">
-           <p class="text-xs font-black text-slate-700 leading-none mb-0.5">Xianyu Admin</p>
+           <p class="text-xs font-black text-slate-700 leading-none mb-0.5">Goofish Admin</p>
            <p class="text-[10px] text-slate-400 font-medium">{{ t('header.accountManagement') }}</p>
         </div>
       </Button>

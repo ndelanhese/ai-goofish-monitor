@@ -1,5 +1,5 @@
 """
-结果数据的 SQLite 读写服务。
+SQLite read/write service for result data.
 """
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ def _get_link_unique_key(link: str) -> str:
 
 
 def _fallback_unique_key(record: dict, item: dict) -> str:
-    item_id = str(item.get("商品ID") or "").strip()
+    item_id = str(item.get("item_id") or "").strip()
     if item_id:
         return f"item:{item_id}"
     digest = hashlib.sha1(
@@ -70,9 +70,9 @@ async def save_result_record(record: dict, keyword: str) -> bool:
 
 def _save_result_record_sync(record: dict, keyword: str) -> bool:
     bootstrap_sqlite_storage()
-    item = record.get("商品信息", {}) or {}
+    item = record.get("product_info", {}) or {}
     analysis = record.get("ai_analysis", {}) or {}
-    link = str(item.get("商品链接") or "")
+    link = str(item.get("product_link") or "")
     link_unique_key = _get_link_unique_key(link) if link else _fallback_unique_key(record, item)
     keyword_hit_count = analysis.get("keyword_hit_count", 0)
     try:
@@ -91,17 +91,17 @@ def _save_result_record_sync(record: dict, keyword: str) -> bool:
             """,
             (
                 build_result_filename(keyword),
-                record.get("搜索关键字", keyword),
-                record.get("任务名称", ""),
-                record.get("爬取时间", ""),
-                item.get("发布时间"),
-                parse_price_value(item.get("当前售价")),
-                item.get("当前售价"),
-                item.get("商品ID"),
-                item.get("商品标题"),
+                record.get("search_keyword", keyword),
+                record.get("task_name", ""),
+                record.get("scraped_at", ""),
+                item.get("publish_time"),
+                parse_price_value(item.get("current_price")),
+                item.get("current_price"),
+                item.get("item_id"),
+                item.get("product_title"),
                 link,
                 link_unique_key,
-                (record.get("卖家信息", {}) or {}).get("卖家昵称") or item.get("卖家昵称"),
+                (record.get("seller_info", {}) or {}).get("seller_nickname") or item.get("seller_nickname"),
                 1 if analysis.get("is_recommended") else 0,
                 analysis.get("analysis_source"),
                 keyword_hit_count,

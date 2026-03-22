@@ -1,39 +1,39 @@
 # Repository Guidelines
 
-## 项目结构与模块组织
-- 后端位于 `src/`，入口 `src/app.py`，API 路由在 `src/api/routes/`，服务层在 `src/services/`，领域模型在 `src/domain/`，基础设施在 `src/infrastructure/`。
-- 前端在 `web-ui/`（Vue 3 + Vite），视图放于 `web-ui/src/views/`，组件在 `web-ui/src/components/`，构建产物会复制到根目录 `dist/`。
-- 测试位于 `tests/`，命名遵循 `test_*.py` 或 `tests/*/test_*.py`。
-- 运行数据与资源：`prompts/`、`jsonl/`、`logs/`、`images/`、`static/`、`state/`，配置文件 `config.json` 与 `.env` 位于仓库根目录。
+## Project Structure and Module Organization
+- Backend is in `src/`, entry point `src/app.py`, API routes in `src/api/routes/`, service layer in `src/services/`, domain models in `src/domain/`, infrastructure in `src/infrastructure/`.
+- Frontend is in `web-ui/` (Vue 3 + Vite), views in `web-ui/src/views/`, components in `web-ui/src/components/`, build artifacts are copied to the root `dist/`.
+- Tests are in `tests/`, following the naming convention `test_*.py` or `tests/*/test_*.py`.
+- Runtime data and resources: `prompts/`, `jsonl/`, `logs/`, `images/`, `static/`, `state/`; config files `config.json` and `.env` are in the repository root.
 
-## 构建、测试与本地开发
-- 后端开发：`python -m src.app` 或 `uvicorn src.app:app --host 0.0.0.0 --port 8000 --reload`。
-- 爬虫任务：`python spider_v2.py --task-name "MacBook Air M1" --debug-limit 3`（可用 `--config` 指定自定义配置）。
-- 前端开发：`cd web-ui && npm install && npm run dev`；构建：`cd web-ui && npm run build`（产物复制到根目录 `dist/`）。
-- 一键本地启动：`bash start.sh`（自动安装依赖、前端构建并启动后端）。
-- Docker：`docker compose up --build -d`，查看日志 `docker compose logs -f app`，停止 `docker compose down`。
+## Build, Test, and Local Development
+- Backend development: `python -m src.app` or `uvicorn src.app:app --host 0.0.0.0 --port 8000 --reload`.
+- Scraper tasks: `python spider_v2.py --task-name "MacBook Air M1" --debug-limit 3` (use `--config` to specify a custom config).
+- Frontend development: `cd web-ui && npm install && npm run dev`; build: `cd web-ui && npm run build` (artifacts copied to root `dist/`).
+- One-click local start: `bash start.sh` (automatically installs dependencies, builds frontend, and starts backend).
+- Docker: `docker compose up --build -d`, view logs with `docker compose logs -f app`, stop with `docker compose down`.
 
-## 编码风格与命名约定
-- 保持分层：API → services → domain → infrastructure，避免跨层耦合，模块保持精简。
-- Python 测试函数命名为 `test_*`，文件与路径遵循上述测试目录规范。
-- 使用描述性、任务导向的命名（如爬虫任务名、配置键），与业务含义对应。
+## Coding Style and Naming Conventions
+- Maintain layering: API → services → domain → infrastructure; avoid cross-layer coupling and keep modules lean.
+- Python test functions are named `test_*`; files and paths follow the test directory conventions above.
+- Use descriptive, task-oriented naming (e.g., scraper task names, config keys) that corresponds to business meaning.
 
-## 架构与运行时
-- 后端使用 FastAPI 提供 API 与静态资源，爬虫与 AI 推理在独立任务进程中协作，前后端通过 HTTP/Web UI 交互。
-- 任务运行会在 `jsonl/` 写入结果、在 `logs/` 留存运行日志、在 `images/` 下载图片，前端监控页面依赖这些数据。
-- 默认监听 8000 端口，前端构建后静态文件可由后端或 Docker 镜像直接提供。
+## Architecture and Runtime
+- The backend uses FastAPI to serve API endpoints and static assets; the scraper and AI inference run in separate task processes that communicate with the main service via HTTP/Web UI.
+- Task runs write results to `jsonl/`, store runtime logs in `logs/`, and download images to `images/`; the frontend monitoring page depends on this data.
+- Default listening port is 8000; once the frontend is built, static files can be served directly by the backend or Docker image.
 
-## 测试指南
-- 测试框架：`pytest`（默认同步测试，无需 `pytest-asyncio`）。
-- 运行全部测试：`pytest`；覆盖率：`pytest --cov=src` 或 `coverage run -m pytest`；定向测试：`pytest tests/test_utils.py::test_safe_get`。
-- 优先覆盖核心服务、爬虫管道的异常分支与重试逻辑，避免回归。
-- PR 前请运行相关测试，新增逻辑补充针对性用例。
+## Testing Guide
+- Test framework: `pytest` (synchronous tests by default; `pytest-asyncio` is not required).
+- Run all tests: `pytest`; coverage: `pytest --cov=src` or `coverage run -m pytest`; targeted test: `pytest tests/test_utils.py::test_safe_get`.
+- Prioritize covering exception branches and retry logic in core services and the scraper pipeline to prevent regressions.
+- Run relevant tests before a PR and add focused test cases for new logic.
 
-## 提交与 PR 规范
-- Commit 采用类 Conventional Commits：`feat(...)`、`fix(...)`、`refactor(...)`、`chore(...)`、`docs(...)` 等。
-- PR 需说明变更范围与影响模块；UI 变更在 `web-ui/` 提供截图；关联相关 Issue；提及配置或迁移步骤。
+## Commit and PR Guidelines
+- Commits follow Conventional Commits style: `feat(...)`, `fix(...)`, `refactor(...)`, `chore(...)`, `docs(...)`, etc.
+- PRs should describe the scope of change and affected modules; provide screenshots for UI changes in `web-ui/`; reference related issues; mention any configuration or migration steps.
 
-## 安全与配置提示
-- 复制 `.env.example` 为 `.env`，设置必填项 `OPENAI_API_KEY`、`OPENAI_BASE_URL`、`OPENAI_MODEL_NAME` 等。
-- 不要提交真实凭据或 cookies（如 `state.json`）；Playwright 需本地浏览器，Docker 镜像已预装 Chromium。
-- Web 认证默认 `admin/admin123`，生产环境务必修改，推荐启用 HTTPS 并限制访问来源。
+## Security and Configuration Notes
+- Copy `.env.example` to `.env` and set the required fields `OPENAI_API_KEY`, `OPENAI_BASE_URL`, `OPENAI_MODEL_NAME`, etc.
+- Do not commit real credentials or cookies (e.g., `state.json`); Playwright requires a local browser, and the Docker image already includes Chromium.
+- Default Web credentials are `admin/admin123`; change them in production. It is recommended to enable HTTPS and restrict access sources.

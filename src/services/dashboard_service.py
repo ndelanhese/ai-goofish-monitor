@@ -1,6 +1,6 @@
 """
-Dashboard 聚合服务
-统一汇总任务、结果文件和最近活动，供首页概览使用。
+Dashboard aggregation service.
+Consolidates tasks, result files, and recent activity for the homepage overview.
 """
 from __future__ import annotations
 

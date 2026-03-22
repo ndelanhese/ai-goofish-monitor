@@ -6,7 +6,7 @@ const enUS = {
   },
   locale: {
     switchLabel: 'Switch language',
-    zh: '中文',
+    zh: 'Chinese',
     en: 'English',
   },
   routes: {

@@ -20,7 +20,7 @@ def test_validate_cron_expression_rejects_invalid_value():
     try:
         validate_cron_expression("not-a-cron")
     except ValueError as exc:
-        assert "支持 5 段" in str(exc)
+        assert "Expected 5 fields" in str(exc)
         return
 
-    raise AssertionError("非法 cron 应该抛出 ValueError")
+    raise AssertionError("Invalid cron should raise ValueError")

@@ -1,5 +1,5 @@
 """
-结果记录富化与文件名校验服务
+Result record enrichment and filename validation service.
 """
 
 from src.infrastructure.persistence.storage_names import normalize_keyword_from_filename
@@ -12,7 +12,7 @@ from src.services.price_history_service import (
 
 def validate_result_filename(filename: str) -> None:
     if not filename.endswith(".jsonl") or "/" in filename or ".." in filename:
-        raise ValueError("无效的文件名")
+        raise ValueError("Invalid filename")
 
 
 def enrich_records_with_price_insight(records: list[dict], filename: str) -> list[dict]:
@@ -22,12 +22,12 @@ def enrich_records_with_price_insight(records: list[dict], filename: str) -> lis
 
     enriched = []
     for record in records:
-        info = record.get("商品信息", {}) or {}
+        info = record.get("product_info", {}) or {}
         clone = dict(record)
         clone["price_insight"] = build_item_price_context(
             snapshots,
-            item_id=str(info.get("商品ID") or ""),
-            current_price=parse_price_value(info.get("当前售价")),
+            item_id=str(info.get("item_id") or ""),
+            current_price=parse_price_value(info.get("current_price")),
         )
         enriched.append(clone)
     return enriched

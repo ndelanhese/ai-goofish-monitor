@@ -47,14 +47,14 @@ def test_generate_criteria_closes_ai_client_after_ai_failure(monkeypatch, tmp_pa
             raise AssertionError("refresh should not be called")
 
         async def _call_ai(self, *_args, **_kwargs):
-            raise EmptyAIResponseError("AI响应内容为空。")
+            raise EmptyAIResponseError("AI response content is empty.")
 
         async def close(self):
             close_state["closed"] = True
 
     monkeypatch.setattr(prompt_utils, "AIClient", FakeAIClient)
 
-    with pytest.raises(EmptyAIResponseError, match="AI响应内容为空"):
+    with pytest.raises(EmptyAIResponseError, match="AI response content is empty"):
         asyncio.run(prompt_utils.generate_criteria("need a gpu", str(reference_file)))
 
     assert close_state["closed"] is True

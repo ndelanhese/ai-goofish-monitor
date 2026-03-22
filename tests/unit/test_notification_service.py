@@ -25,11 +25,11 @@ def test_notification_service_collects_success_and_failure_results():
     service = NotificationService([_OkClient(enabled=True), _FailClient(enabled=True)])
 
     results = asyncio.run(
-        service.send_notification({"商品标题": "Sony A7M4"}, "价格合适")
+        service.send_notification({"product_title": "Sony A7M4"}, "Good price")
     )
 
     assert results["ok"]["success"] is True
-    assert results["ok"]["message"] == "发送成功"
+    assert results["ok"]["message"] == "Sent successfully"
     assert results["fail"]["success"] is False
     assert results["fail"]["message"] == "boom"
 
@@ -63,16 +63,16 @@ def test_webhook_client_renders_json_templates(monkeypatch):
     asyncio.run(
         client.send(
             {
-                "商品标题": "Sony A7M4",
-                "当前售价": "9999",
-                "商品链接": "https://www.goofish.com/item/123",
+                "product_title": "Sony A7M4",
+                "current_price": "9999",
+                "product_link": "https://www.goofish.com/item/123",
             },
-            "价格合适",
+            "Good price",
         )
     )
 
-    assert "task=%F0%9F%9A%A8+%E6%96%B0%E6%8E%A8%E8%8D%90%21+Sony+A7M4" in captured["url"]
+    assert "task=%F0%9F%9A%A8+New+Recommendation%21+Sony+A7M4" in captured["url"]
     assert captured["headers"]["Authorization"] == "Bearer token"
-    assert captured["json"]["message"].startswith("价格: 9999")
+    assert captured["json"]["message"].startswith("Price: 9999")
     assert captured["json"]["link"] == "https://www.goofish.com/item/123"
     assert captured["data"] is None

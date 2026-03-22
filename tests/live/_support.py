@@ -107,7 +107,7 @@ def resolve_account_source(repo_root: Path) -> Path:
     candidates = sorted(state_dir.glob("*.json"))
     if not candidates:
         raise FileNotFoundError(
-            "LIVE_TEST_ACCOUNT_STATE_FILE 未设置，且 state/ 下没有可用 JSON 登录态文件。"
+            "LIVE_TEST_ACCOUNT_STATE_FILE is not set and no JSON account state file was found under state/."
         )
     return candidates[0]
 
@@ -202,7 +202,7 @@ def wait_for_server_ready(base_url: str, process: subprocess.Popen, log_path: Pa
     if log_path.exists():
         log_excerpt = log_path.read_text(encoding="utf-8", errors="ignore")[-4000:]
     raise RuntimeError(
-        "Live app 未在预期时间内启动。"
+        "Live app did not start within the expected time."
         f" last_error={last_error}\nserver_log={log_path}\n{log_excerpt}"
     )
 

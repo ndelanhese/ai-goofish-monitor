@@ -1,5 +1,5 @@
 """
-设置管理路由
+Settings management routes
 """
 import os
 from typing import Optional
@@ -69,7 +69,7 @@ def _normalize_bool_value(value: bool) -> str:
 
 
 class NotificationSettingsModel(BaseModel):
-    """通知设置模型"""
+    """Notification settings model"""
 
     NTFY_TOPIC_URL: Optional[str] = None
     GOTIFY_URL: Optional[str] = None
@@ -89,14 +89,14 @@ class NotificationSettingsModel(BaseModel):
 
 
 class NotificationTestRequest(BaseModel):
-    """通知测试请求"""
+    """Notification test request"""
 
     channel: Optional[str] = None
     settings: NotificationSettingsModel = Field(default_factory=NotificationSettingsModel)
 
 
 class AISettingsModel(BaseModel):
-    """AI设置模型"""
+    """AI settings model"""
 
     OPENAI_API_KEY: Optional[str] = None
     OPENAI_BASE_URL: Optional[str] = None
@@ -135,11 +135,11 @@ async def update_notification_settings(settings: NotificationSettingsModel):
 
     success = env_manager.apply_changes(updates=updates, deletions=deletions)
     if not success:
-        raise HTTPException(status_code=500, detail="更新通知设置失败")
+        raise HTTPException(status_code=500, detail="Failed to update notification settings")
 
     _reload_env()
     return {
-        "message": "通知设置已成功更新",
+        "message": "Notification settings updated successfully",
         "configured_channels": build_configured_channels(merged_settings),
     }
 
@@ -156,19 +156,19 @@ async def test_notification_settings(payload: NotificationTestRequest):
 
     service = build_notification_service(merged_settings)
     if not service.clients:
-        raise HTTPException(status_code=422, detail="请至少配置一个可用的通知渠道")
+        raise HTTPException(status_code=422, detail="Please configure at least one notification channel")
 
     results = await service.send_test_notification()
     if payload.channel:
         if payload.channel not in results:
             raise HTTPException(
                 status_code=422,
-                detail=f"渠道 {payload.channel} 未配置或不受支持",
+                detail=f"Channel {payload.channel} is not configured or not supported",
             )
         results = {payload.channel: results[payload.channel]}
 
     return {
-        "message": "测试通知已执行",
+        "message": "Test notification executed",
         "results": results,
     }
 
@@ -200,9 +200,9 @@ async def update_rotation_settings(settings: RotationSettingsModel):
             updates[key] = str(value)
     success = env_manager.update_values(updates)
     if not success:
-        raise HTTPException(status_code=500, detail="更新轮换设置失败")
+        raise HTTPException(status_code=500, detail="Failed to update rotation settings")
     _reload_env()
-    return {"message": "轮换设置已成功更新"}
+    return {"message": "Rotation settings updated successfully"}
 
 
 @router.get("/status")
@@ -271,14 +271,14 @@ async def update_ai_settings(settings: AISettingsModel):
 
     success = env_manager.update_values(updates)
     if not success:
-        raise HTTPException(status_code=500, detail="更新AI设置失败")
+        raise HTTPException(status_code=500, detail="Failed to update AI settings")
     _reload_env()
-    return {"message": "AI设置已成功更新"}
+    return {"message": "AI settings updated successfully"}
 
 
 @router.post("/ai/test")
 async def test_ai_settings(settings: dict):
-    """测试AI模型设置是否有效"""
+    """Test whether the AI model settings are valid"""
     try:
         from openai import OpenAI
         import httpx
@@ -330,11 +330,11 @@ async def test_ai_settings(settings: dict):
 
         return {
             "success": True,
-            "message": "AI模型连接测试成功！",
+            "message": "AI model connection test successful!",
             "response": extract_ai_response_content(response),
         }
     except Exception as exc:
         return {
             "success": False,
-            "message": f"AI模型连接测试失败: {exc}",
+            "message": f"AI model connection test failed: {exc}",
         }

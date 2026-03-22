@@ -1,21 +1,15 @@
 import { computed, watch } from 'vue'
 import { createI18n, useI18n } from 'vue-i18n'
-import zhCN from '@/i18n/messages/zh-CN'
 import enUS from '@/i18n/messages/en-US'
 
-export type AppLocale = 'zh-CN' | 'en-US'
+export type AppLocale = 'en-US'
 
 const LOCALE_STORAGE_KEY = 'app_locale'
-const DEFAULT_LOCALE: AppLocale = 'zh-CN'
-const SUPPORTED_LOCALES: AppLocale[] = ['zh-CN', 'en-US']
+const DEFAULT_LOCALE: AppLocale = 'en-US'
+const SUPPORTED_LOCALES: AppLocale[] = ['en-US']
 
 function resolveInitialLocale(): AppLocale {
-  const saved = localStorage.getItem(LOCALE_STORAGE_KEY)
-  if (saved && SUPPORTED_LOCALES.includes(saved as AppLocale)) {
-    return saved as AppLocale
-  }
-  const browserLocale = navigator.language.toLowerCase()
-  return browserLocale.startsWith('zh') ? 'zh-CN' : 'en-US'
+  return 'en-US'
 }
 
 export const i18n = createI18n({
@@ -23,7 +17,6 @@ export const i18n = createI18n({
   locale: resolveInitialLocale(),
   fallbackLocale: DEFAULT_LOCALE,
   messages: {
-    'zh-CN': zhCN,
     'en-US': enUS,
   },
 })

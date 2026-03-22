@@ -16,8 +16,8 @@ def test_safe_get_nested_and_default():
 
 
 def test_format_registration_days():
-    assert format_registration_days(400).startswith("\u6765\u95f2\u9c7c")
-    assert format_registration_days(-1) == "\u672a\u77e5"
+    assert format_registration_days(400).startswith("On Goofish for")
+    assert format_registration_days(-1) == "Unknown"
 
 
 def test_get_link_unique_key():
@@ -28,14 +28,14 @@ def test_get_link_unique_key():
 def test_save_to_jsonl(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     record = {
-        "爬取时间": "2026-01-01T10:00:00",
-        "搜索关键字": "sony a7m4",
-        "任务名称": "Sony A7M4",
-        "商品信息": {
-            "商品ID": "1",
-            "商品标题": "Sony A7M4",
-            "商品链接": "https://www.goofish.com/item?id=1",
-            "当前售价": "¥10000",
+        "scraped_at": "2026-01-01T10:00:00",
+        "search_keyword": "sony a7m4",
+        "task_name": "Sony A7M4",
+        "product_info": {
+            "item_id": "1",
+            "product_title": "Sony A7M4",
+            "product_link": "https://www.goofish.com/item?id=1",
+            "current_price": "¥10000",
         },
     }
 

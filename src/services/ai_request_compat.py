@@ -1,4 +1,4 @@
-"""AI 请求兼容性辅助逻辑。"""
+"""AI request compatibility helper logic."""
 
 import copy
 from typing import Any, Dict, Iterable, List
@@ -36,7 +36,7 @@ UNSUPPORTED_TEMPERATURE_MARKERS = (
 
 
 def build_responses_input(messages: Iterable[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """将 Chat Completions 风格的消息转换为 Responses API 输入。"""
+    """Convert Chat Completions-style messages to Responses API input."""
     input_items: List[Dict[str, Any]] = []
     for message in messages:
         role = str(message.get("role") or "user")
@@ -53,7 +53,7 @@ def add_json_text_format(
     request_params: Dict[str, Any],
     enabled: bool,
 ) -> Dict[str, Any]:
-    """按需附加 Responses API 的结构化 JSON 输出参数。"""
+    """Attach structured JSON output parameters to Responses API requests when needed."""
     next_params = dict(request_params)
     if not enabled:
         return next_params
@@ -68,7 +68,7 @@ def add_json_response_format(
     request_params: Dict[str, Any],
     enabled: bool,
 ) -> Dict[str, Any]:
-    """按需附加 Chat Completions 的 JSON 输出参数。"""
+    """Attach Chat Completions JSON output parameters when needed."""
     next_params = dict(request_params)
     if enabled:
         next_params["response_format"] = {"type": JSON_OUTPUT_TYPE}
@@ -76,7 +76,7 @@ def add_json_response_format(
 
 
 def is_json_output_unsupported_error(error: Exception) -> bool:
-    """识别模型不支持结构化 JSON 输出参数的错误。"""
+    """Identify errors where the model does not support structured JSON output parameters."""
     message = str(error)
     return (
         "not supported" in message.lower()
@@ -85,12 +85,12 @@ def is_json_output_unsupported_error(error: Exception) -> bool:
 
 
 def is_responses_api_unsupported_error(error: Exception) -> bool:
-    """识别 OpenAI 兼容服务未实现 Responses API 的错误。"""
+    """Identify errors where an OpenAI-compatible service does not implement the Responses API."""
     return _is_api_unsupported_error(error, RESPONSES_API_UNSUPPORTED_MARKERS)
 
 
 def is_chat_completions_api_unsupported_error(error: Exception) -> bool:
-    """识别 OpenAI 兼容服务未实现 Chat Completions API 的错误。"""
+    """Identify errors where an OpenAI-compatible service does not implement the Chat Completions API."""
     return _is_api_unsupported_error(error, CHAT_COMPLETIONS_API_UNSUPPORTED_MARKERS)
 
 
@@ -103,7 +103,7 @@ def build_ai_request_params(
     max_output_tokens: int | None = None,
     enable_json_output: bool = False,
 ) -> Dict[str, Any]:
-    """根据 API 模式构建请求参数。"""
+    """Build request parameters based on the API mode."""
     request_params = {"model": model}
     if api_mode == RESPONSES_API_MODE:
         request_params["input"] = build_responses_input(messages)
@@ -121,7 +121,7 @@ def build_ai_request_params(
             request_params["temperature"] = temperature
         return add_json_response_format(request_params, enable_json_output)
 
-    raise ValueError(f"不支持的 AI API 模式: {api_mode}")
+    raise ValueError(f"Unsupported AI API mode: {api_mode}")
 
 
 async def create_ai_response_async(
@@ -129,12 +129,12 @@ async def create_ai_response_async(
     api_mode: str,
     request_params: Dict[str, Any],
 ) -> Any:
-    """根据 API 模式发起异步请求。"""
+    """Issue an async request based on the API mode."""
     if api_mode == RESPONSES_API_MODE:
         return await client.responses.create(**request_params)
     if api_mode == CHAT_COMPLETIONS_API_MODE:
         return await client.chat.completions.create(**request_params)
-    raise ValueError(f"不支持的 AI API 模式: {api_mode}")
+    raise ValueError(f"Unsupported AI API mode: {api_mode}")
 
 
 def create_ai_response_sync(
@@ -142,27 +142,27 @@ def create_ai_response_sync(
     api_mode: str,
     request_params: Dict[str, Any],
 ) -> Any:
-    """根据 API 模式发起同步请求。"""
+    """Issue a synchronous request based on the API mode."""
     if api_mode == RESPONSES_API_MODE:
         return client.responses.create(**request_params)
     if api_mode == CHAT_COMPLETIONS_API_MODE:
         return client.chat.completions.create(**request_params)
-    raise ValueError(f"不支持的 AI API 模式: {api_mode}")
+    raise ValueError(f"Unsupported AI API mode: {api_mode}")
 
 
 def is_temperature_unsupported_error(error: Exception) -> bool:
-    """识别模型或中转站不支持 temperature 参数的错误。"""
+    """Identify errors where the model or proxy does not support the temperature parameter."""
     message = str(error).lower()
     return (
         "not supported" in message
         or "unsupported" in message
         or "invalid" in message
-        or "参数错误" in message
+        or "Parameter error" in message
     ) and any(marker in message for marker in UNSUPPORTED_TEMPERATURE_MARKERS)
 
 
 def remove_temperature_param(request_params: Dict[str, Any]) -> Dict[str, Any]:
-    """移除 temperature 参数，适配不支持采样温度的模型网关。"""
+    """Remove the temperature parameter to accommodate model gateways that do not support sampling temperature."""
     next_params = dict(request_params)
     next_params.pop("temperature", None)
     return next_params
@@ -192,26 +192,26 @@ def _build_input_content(content: Any) -> List[Dict[str, Any]]:
     if isinstance(content, str):
         return [{"type": INPUT_TEXT_TYPE, "text": content}]
     if not isinstance(content, list):
-        raise ValueError(f"AI消息内容类型不受支持: {type(content).__name__}")
+        raise ValueError(f"Unsupported AI message content type: {type(content).__name__}")
 
     return [_coerce_content_item(item) for item in content]
 
 
 def _coerce_content_item(item: Any) -> Dict[str, Any]:
     if not isinstance(item, dict):
-        raise ValueError(f"AI消息片段类型不受支持: {type(item).__name__}")
+        raise ValueError(f"Unsupported AI message part type: {type(item).__name__}")
 
     item_type = item.get("type")
     if item_type in {"text", INPUT_TEXT_TYPE}:
         text = item.get("text")
         if not isinstance(text, str):
-            raise ValueError("文本消息片段缺少 text 字段。")
+            raise ValueError("Text message part is missing the text field.")
         return {"type": INPUT_TEXT_TYPE, "text": text}
 
     if item_type in {"image_url", INPUT_IMAGE_TYPE}:
         return _build_image_input_item(item)
 
-    raise ValueError(f"不支持的 AI 消息片段类型: {item_type}")
+    raise ValueError(f"Unsupported AI message part type: {item_type}")
 
 
 def _build_image_input_item(item: Dict[str, Any]) -> Dict[str, Any]:
@@ -222,7 +222,7 @@ def _build_image_input_item(item: Dict[str, Any]) -> Dict[str, Any]:
         image_url = raw_image
 
     if not isinstance(image_url, str) or not image_url.strip():
-        raise ValueError("图片消息片段缺少有效的 image_url。")
+        raise ValueError("Image message part is missing a valid image_url.")
 
     return {
         "type": INPUT_IMAGE_TYPE,

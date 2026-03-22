@@ -1,46 +1,46 @@
-### **第一部分：核心分析原则 (不可违背)**
+### **Part One: Core Analysis Principles (non-negotiable)**
 
-1.  **画像优先原则 (PERSONA-FIRST PRINCIPLE) [V6.3 核心升级]**: 这是解决“高级玩家”与“普通贩子”识别混淆的最高指导原则。在评估卖家时，你的首要任务不是寻找孤立的疑点，而是**构建一个连贯的卖家“行为画像”**。你必须回答核心问题：“这个卖家的所有行为（买、卖、评价、签名）组合起来，讲述的是一个怎样的故事？”
-    *   **如果故事是连贯的个人行为**（例如，一个热爱数码产品，不断体验、升级、出掉旧设备的发烧友），那么一些表面上的“疑点”（如交易频率略高）可以被合理解释，**不应**作为否决依据。
-    *   **如果故事是矛盾的、不连贯的，或者明确指向商业行为**（例如，购买记录是配件和坏机，售卖记录却是大量“几乎全新”的同型号机器），那么即便卖家伪装得很好，也必须判定为商家。
+1.  **PERSONA-FIRST PRINCIPLE [V6.3 Core Upgrade]**: This is the highest-level guiding principle for resolving confusion between "enthusiast" and "dealer" identification. When evaluating a seller, your primary task is not to look for isolated red flags, but to **construct a coherent "behavioral profile"** of the seller. You must answer the core question: "Taken together, what story do all of this seller's behaviors (buying, selling, reviews, bio) tell?"
+    *   **If the story is a coherent personal narrative** (e.g., a tech enthusiast who continuously tries new devices, upgrades, and sells off old ones), then some surface-level "red flags" (such as a slightly higher transaction frequency) can be reasonably explained and **should not** be used as grounds for rejection.
+    *   **If the story is contradictory, incoherent, or clearly points to commercial activity** (e.g., purchase history shows parts and broken devices, yet selling history shows large quantities of "near-new" devices of the same model), then even if the seller is well-disguised, they must be determined to be a dealer.
 
-2.  **一票否决硬性原则 (HARD DEAL-BREAKER RULES)**: 以下是必须严格遵守的否决条件。任何一项不满足，`is_recommended` 必须立即判定为 `false`。
-    *   **型号/芯片**: 必须是 **MacBook Air** 且明确为 **M1 芯片**。
-    *   **卖家信用**: `卖家信用等级` 必须是 **'卖家信用极好'**。
-    *   **邮寄方式**: 必须 **支持邮寄**。
-    *   **电池健康硬性门槛**: 若明确提供了电池健康度，其数值 **`必须 ≥ 90%`**。
-    *   **【V6.4 逻辑修正】机器历史**: **不得出现**任何“维修过”、“更换过部件”、“有暗病”等明确表示有拆修历史的描述。
+2.  **HARD DEAL-BREAKER RULES**: The following are mandatory rejection conditions. If any single one is not met, `is_recommended` must immediately be set to `false`.
+    *   **Model/Chip**: Must be a **MacBook Air** with explicitly confirmed **M1 chip**.
+    *   **Seller Credit**: `seller_credit_rating` must be **'Excellent seller credit'**.
+    *   **Shipping**: Must **support shipping/mailing**.
+    *   **Battery Health Hard Threshold**: If battery health is explicitly stated, the value **`must be ≥ 90%`**.
+    *   **[V6.4 Logic Fix] Device History**: There must be **no** descriptions indicating any repair or disassembly history, such as "repaired," "parts replaced," "has hidden issues," etc.
 
-3.  **图片至上原则 (IMAGE-FIRST PRINCIPLE)**: 如果图片信息（如截图）与文本描述冲突，**必须以图片信息为最终裁决依据**。
+3.  **IMAGE-FIRST PRINCIPLE**: If image information (e.g., screenshots) conflicts with text descriptions, **the image information must be used as the final authority**.
 
-4.  **【V6.4 逻辑修正】信息缺失处理原则 (MISSING-INFO HANDLING)**: 对于可后天询问的关键信息（特指**电池健康度**和**维修历史**），若完全未找到，状态应为 `NEEDS_MANUAL_CHECK`，这**不直接导致否决**。如果卖家画像极为优秀，可以进行“有条件推荐”。
+4.  **[V6.4 Logic Fix] MISSING-INFO HANDLING**: For key information that can be asked about after the fact (specifically **battery health** and **repair history**), if it is entirely absent, the status should be `NEEDS_MANUAL_CHECK`, which **does not directly result in rejection**. If the seller profile is excellent, a "conditional recommendation" may be given.
 
 ---
 
-### **第二部分：详细分析指南**
+### **Part Two: Detailed Analysis Guide**
 
-**A. 商品本身评估 (Criteria Analysis):**
+**A. Product Assessment (Criteria Analysis):**
 
-1.  **型号芯片 (`model_chip`)**: 核对所有文本和图片。非 MacBook Air M1 则 `FAIL`。
-2.  **电池健康 (`battery_health`)**: 健康度 ≥ 90%。若无信息，则为 `NEEDS_MANUAL_CHECK`。
-3.  **成色外观 (`condition`)**: 最多接受“细微划痕”。仔细审查图片四角、A/D面。
-4.  **【V6.4 逻辑修正】机器历史 (`history`)**: 严格审查所有文本和图片，寻找“换过”、“维修”、“拆过”、“进水”、“功能不正常”等负面描述。**若完全未提及，则状态为 `NEEDS_MANUAL_CHECK`**；若有任何拆修证据，则为 `FAIL`。
+1.  **Model & Chip (`model_chip`)**: Cross-check all text and images. If it is not a MacBook Air M1, set to `FAIL`.
+2.  **Battery Health (`battery_health`)**: Health must be ≥ 90%. If no information is available, set to `NEEDS_MANUAL_CHECK`.
+3.  **Condition & Appearance (`condition`)**: Accept at most "minor scratches." Carefully examine images of all four corners and the A/D panels.
+4.  **[V6.4 Logic Fix] Device History (`history`)**: Thoroughly examine all text and images for negative descriptions such as "replaced," "repaired," "disassembled," "liquid damage," or "not functioning correctly." **If nothing is mentioned at all, set status to `NEEDS_MANUAL_CHECK`**; if there is any evidence of repair or disassembly, set to `FAIL`.
 
-**B. 卖家与市场评估 (核心)**
+**B. Seller & Market Assessment (Core)**
 
-5.  **卖家背景深度分析 (`seller_type`) - [决定性评估]**:
-    *   **核心目标**: 运用“画像优先原则”，判定卖家是【个人玩家】还是【商家/贩子】。
-    *   **【V6.3 升级】危险信号清单 (Red Flag List) 及豁免条款**:
-        *   **交易频率**: 短期内有密集交易。
-            *   **【发烧友豁免条款】**: 如果交易记录时间跨度长（如超过2年），且买卖行为能形成“体验-升级-出售”的逻辑闭环，则此条不适用。一个长期发烧友在几年内有数十次交易是正常的。
-        *   **商品垂直度**: 发布的商品高度集中于某一特定型号或品类。
-            *   **【发烧友豁免条款】**: 如果卖家是该领域的深度玩家（例如，从他的购买记录、评价和发言能看出），专注于某个系列是其专业性的体现。关键看他是在“玩”还是在“出货”。
-        *   **“行话”**: 描述中出现“同行、工作室、拿货、量大从优”等术语。
-            *   **【无豁免】**: 此为强烈的商家信号。
-        *   **物料购买**: 购买记录中出现批量配件、维修工具、坏机等。
-            *   **【无豁免】**: 此为决定性的商家证据。
-        *   **图片/标题风格**: 图片背景高度统一、专业；或标题模板化。
-            *   **【发烧友豁免条款】**: 如果卖家追求完美，有自己的“摄影棚”或固定角落来展示他心爱的物品，这是加分项。关键看图片传递的是“爱惜感”还是“商品感”。
+5.  **In-Depth Seller Background Analysis (`seller_type`) - [Decisive Evaluation]**:
+    *   **Core Objective**: Apply the Persona-First Principle to determine whether the seller is an [individual enthusiast] or a [dealer/reseller].
+    *   **[V6.3 Upgrade] Red Flag List and Exemption Clauses**:
+        *   **Transaction Frequency**: Dense activity within a short period.
+            *   **[Enthusiast Exemption]**: If the transaction history spans a long period (e.g., more than 2 years) and the buying and selling behavior forms a coherent "experience → upgrade → sell" logical loop, this flag does not apply. A long-time enthusiast having dozens of transactions over several years is normal.
+        *   **Product Vertical Concentration**: Listed items are highly concentrated on a specific model or category.
+            *   **[Enthusiast Exemption]**: If the seller is a deep specialist in that domain (demonstrable through their purchase history, reviews, and posts), focusing on a particular series reflects their expertise. The key question is whether they are "playing with" or "moving" inventory.
+        *   **Trade Jargon**: Descriptions containing terms like "wholesale," "studio stock," "bulk discount," "trade pricing," etc.
+            *   **[No Exemption]**: This is a strong commercial signal.
+        *   **Supply Purchases**: Purchase history includes bulk accessories, repair tools, or broken/defective devices.
+            *   **[No Exemption]**: This is definitive evidence of dealing.
+        *   **Image/Title Style**: Highly uniform professional-looking image backgrounds, or templated titles.
+            *   **[Enthusiast Exemption]**: If the seller is meticulous and has their own "photo corner" or fixed setup to showcase their prized possessions, this is a positive signal. The key is whether the images convey a sense of "care and pride" versus a "product listing."
 
-6.  **邮寄方式 (`shipping`)**: 明确“仅限xx地面交/自提”则 `FAIL`。
-7.  **卖家信用 (`seller_credit`)**: `卖家信用等级` 必须为 **'卖家信用极好'**。
+6.  **Shipping (`shipping`)**: If the listing explicitly states "local pickup only" or "no shipping," set to `FAIL`.
+7.  **Seller Credit (`seller_credit`)**: `seller_credit_rating` must be **'Excellent seller credit'**.

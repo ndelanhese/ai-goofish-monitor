@@ -109,7 +109,7 @@ def test_advance_search_page_stops_when_no_next_button() -> None:
     assert result.response is None
     assert result.stop_reason == "no_next_button"
     assert page.locator_stub.clicks == 0
-    assert logs == ["已到达最后一页，未找到可用的'下一页'按钮，停止翻页。"]
+    assert logs == ["Reached the last page, no enabled next-page button found, stopping pagination."]
 
 
 def test_advance_search_page_stops_after_timeout_retries() -> None:
@@ -138,8 +138,8 @@ def test_advance_search_page_stops_after_timeout_retries() -> None:
     assert page.locator_stub.clicks == 2
     assert page.locator_stub.scrolls == 2
     assert logs == [
-        "等待第 2 页搜索响应超时，5秒后重试...",
-        "等待第 2 页搜索响应超时 2 次，停止翻页。",
+        "Timed out waiting for page 2 search response, retrying in 5s...",
+        "Timed out waiting for page 2 search response after 2 retries, stopping pagination.",
     ]
 
 
@@ -189,7 +189,7 @@ def test_advance_search_page_stops_when_click_times_out() -> None:
     assert result.response is None
     assert result.stop_reason == "click_timeout"
     assert page.locator_stub.clicks == 1
-    assert logs == ["第 2 页下一页按钮点击超时，停止翻页。"]
+    assert logs == ["Page 2 next-page button click timed out, stopping pagination."]
 
 
 def test_is_search_results_response_matches_exact_search_api() -> None:

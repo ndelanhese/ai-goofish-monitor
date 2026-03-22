@@ -1,5 +1,5 @@
 """
-Gotify 通知客户端
+Gotify notification client.
 """
 import asyncio
 from typing import Dict
@@ -10,7 +10,7 @@ from .base import NotificationClient
 
 
 class GotifyClient(NotificationClient):
-    """Gotify 通知客户端"""
+    """Gotify notification client."""
 
     channel_key = "gotify"
     display_name = "Gotify"
@@ -30,7 +30,7 @@ class GotifyClient(NotificationClient):
 
     async def send(self, product_data: Dict, reason: str) -> None:
         if not self.is_enabled():
-            raise RuntimeError("Gotify 未启用")
+            raise RuntimeError("Gotify is not enabled")
 
         message = self._build_message(product_data, reason)
         payload = {

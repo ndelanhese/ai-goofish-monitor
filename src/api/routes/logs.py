@@ -1,5 +1,5 @@
 """
-日志管理路由
+Log management routes
 """
 import os
 from typing import Optional, Tuple, List
@@ -58,17 +58,17 @@ async def get_logs(
     task_id: Optional[int] = Query(default=None, ge=0),
     task_service: TaskService = Depends(get_task_service),
 ):
-    """获取日志内容（增量读取）"""
+    """Get log content (incremental read)"""
     if task_id is None:
         return JSONResponse(content={
-            "new_content": "请选择任务后查看日志。",
+            "new_content": "Please select a task to view its logs.",
             "new_pos": 0
         })
 
     task = await task_service.get_task(task_id)
     if not task:
         return JSONResponse(status_code=404, content={
-            "new_content": "任务不存在或已删除。",
+            "new_content": "Task does not exist or has been deleted.",
             "new_pos": 0
         })
 
@@ -97,8 +97,8 @@ async def get_logs(
     except Exception as e:
         return JSONResponse(
             status_code=500,
-            content={"new_content": f"\n读取日志文件时出错: {e}", "new_pos": from_pos}
-        )  
+            content={"new_content": f"\nError reading log file: {e}", "new_pos": from_pos}
+        )
 
 
 @router.get("/tail")
@@ -108,7 +108,7 @@ async def get_logs_tail(
     limit_lines: int = Query(default=50, ge=1, le=1000),
     task_service: TaskService = Depends(get_task_service),
 ):
-    """获取日志尾部内容（按行分页）"""
+    """Get log tail content (line-based pagination)"""
     if task_id is None:
         return JSONResponse(content={
             "content": "",
@@ -153,7 +153,7 @@ async def get_logs_tail(
         return JSONResponse(
             status_code=500,
             content={
-                "content": f"读取日志文件时出错: {e}",
+                "content": f"Error reading log file: {e}",
                 "has_more": False,
                 "next_offset": offset_lines,
                 "new_pos": 0
@@ -166,38 +166,38 @@ async def clear_logs(
     task_id: Optional[int] = Query(default=None, ge=0),
     task_service: TaskService = Depends(get_task_service),
 ):
-    """清空日志文件"""
+    """Clear the log file"""
     if task_id is None:
-        return {"message": "未指定任务，无法清空日志。"}
+        return {"message": "No task specified; cannot clear logs."}
 
     task = await task_service.get_task(task_id)
     if not task:
-        return {"message": "任务不存在或已删除。"}
+        return {"message": "Task does not exist or has been deleted."}
 
     log_file_path = resolve_task_log_path(task_id, task.task_name)
 
     if not os.path.exists(log_file_path):
-        return {"message": "日志文件不存在，无需清空。"}
+        return {"message": "Log file does not exist; nothing to clear."}
 
     try:
         async with aiofiles.open(log_file_path, 'w', encoding='utf-8') as f:
             await f.write("")
-        return {"message": "日志已成功清空。"}
+        return {"message": "Log cleared successfully."}
     except Exception as e:
         return JSONResponse(
             status_code=500,
-            content={"message": f"清空日志文件时出错: {e}"}
+            content={"message": f"Error clearing log file: {e}"}
         )
 
     if not os.path.exists(log_file_path):
-        return {"message": "日志文件不存在，无需清空。"}
+        return {"message": "Log file does not exist; nothing to clear."}
 
     try:
         async with aiofiles.open(log_file_path, 'w', encoding='utf-8') as f:
             await f.write("")
-        return {"message": "日志已成功清空。"}
+        return {"message": "Log cleared successfully."}
     except Exception as e:
         return JSONResponse(
             status_code=500,
-            content={"message": f"清空日志文件时出错: {e}"}
+            content={"message": f"Error clearing log file: {e}"}
         )

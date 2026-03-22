@@ -18,7 +18,7 @@ def test_resolve_browser_channel_uses_chromium_in_docker_even_when_edge_requeste
     scraper = _load_scraper(monkeypatch, login_is_edge=True, running_in_docker=True)
 
     assert scraper._resolve_browser_channel() == "chromium"
-    assert "Docker 镜像未内置 Edge" in capsys.readouterr().out
+    assert "Docker image does not include Edge" in capsys.readouterr().out
 
 
 def test_resolve_browser_channel_uses_msedge_locally_when_requested(monkeypatch):

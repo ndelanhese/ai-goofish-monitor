@@ -19,15 +19,15 @@ def test_build_messages_without_images_uses_text_only_content():
     client = AIClient.__new__(AIClient)
 
     messages = client._build_messages(
-        {"商品信息": {"商品标题": "MacBook Pro M2"}, "卖家信息": {"卖家信用等级": "优秀"}},
+        {"product_info": {"product_title": "MacBook Pro M2"}, "seller_info": {"seller_credit_level": "Excellent"}},
         [],
-        "只分析文字描述和卖家资质。",
+        "Analyze only the text description and seller qualifications.",
     )
 
     content = messages[0]["content"]
     assert isinstance(content, str)
     assert "MacBook Pro M2" in content
-    assert "未提供商品图片" in content
+    assert "No product images provided" in content
 
 
 def test_build_messages_with_images_uses_multimodal_content(monkeypatch):
@@ -35,9 +35,9 @@ def test_build_messages_with_images_uses_multimodal_content(monkeypatch):
     monkeypatch.setattr(AIClient, "encode_image", staticmethod(lambda _path: "ZmFrZQ=="))
 
     messages = client._build_messages(
-        {"商品信息": {"商品标题": "MacBook Pro M2"}},
+        {"product_info": {"product_title": "MacBook Pro M2"}},
         ["fake-image.jpg"],
-        "结合图片和文字综合判断。",
+        "Evaluate based on both images and text.",
     )
 
     content = messages[0]["content"]
@@ -214,7 +214,7 @@ def test_call_ai_raises_after_all_empty_response_retries_are_exhausted():
 
     client.client = _build_fake_client(fake_create)
 
-    with pytest.raises(ValueError, match="AI响应内容为空"):
+    with pytest.raises(ValueError, match="AI response content is empty"):
         asyncio.run(client._call_ai([{"role": "user", "content": "hi"}]))
 
     assert len(request_history) == 4

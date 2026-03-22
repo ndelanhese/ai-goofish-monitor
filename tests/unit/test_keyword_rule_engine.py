@@ -3,14 +3,14 @@ from src.keyword_rule_engine import build_search_text, evaluate_keyword_rules
 
 def _sample_record():
     return {
-        "商品信息": {
-            "商品标题": "Sony A7M4 全画幅相机",
-            "当前售价": "10000",
-            "商品标签": ["验货宝", "包邮"],
+        "product_info": {
+            "product_title": "Sony A7M4 全画幅相机",
+            "current_price": "10000",
+            "product_tags": ["验货宝", "包邮"],
         },
-        "卖家信息": {
-            "卖家昵称": "摄影器材店",
-            "卖家个性签名": "可验机，支持同城面交",
+        "seller_info": {
+            "seller_nickname": "摄影器材店",
+            "seller_bio": "可验机，支持同城面交",
         },
     }
 

@@ -48,7 +48,7 @@ async def advance_search_page(
 ) -> PageAdvanceResult:
     next_button = page.locator(NEXT_PAGE_SELECTOR).first
     if not await next_button.count():
-        logger("已到达最后一页，未找到可用的'下一页'按钮，停止翻页。")
+        logger("Reached the last page, no enabled next-page button found, stopping pagination.")
         return PageAdvanceResult(advanced=False, stop_reason="no_next_button")
 
     for retry_index in range(max_retries):
@@ -61,7 +61,7 @@ async def advance_search_page(
                 try:
                     await next_button.click(timeout=PAGE_CLICK_TIMEOUT_MS)
                 except PlaywrightTimeoutError:
-                    logger(f"第 {page_num} 页下一页按钮点击超时，停止翻页。")
+                    logger(f"Page {page_num} next-page button click timed out, stopping pagination.")
                     return PageAdvanceResult(
                         advanced=False,
                         stop_reason="click_timeout",
@@ -77,13 +77,13 @@ async def advance_search_page(
         except PlaywrightTimeoutError:
             if retry_index < max_retries - 1:
                 logger(
-                    f"等待第 {page_num} 页搜索响应超时，"
-                    f"{PAGE_RETRY_DELAY_SECONDS}秒后重试..."
+                    f"Timed out waiting for page {page_num} search response, "
+                    f"retrying in {PAGE_RETRY_DELAY_SECONDS}s..."
                 )
                 await retry_sleep(PAGE_RETRY_DELAY_SECONDS)
                 continue
 
-            logger(f"等待第 {page_num} 页搜索响应超时 {max_retries} 次，停止翻页。")
+            logger(f"Timed out waiting for page {page_num} search response after {max_retries} retries, stopping pagination.")
             return PageAdvanceResult(advanced=False, stop_reason="response_timeout")
 
     return PageAdvanceResult(advanced=False, stop_reason="unknown")

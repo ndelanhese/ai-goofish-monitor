@@ -1,5 +1,5 @@
 """
-SQLite 连接与 schema 初始化。
+SQLite connection and schema initialisation.
 """
 from __future__ import annotations
 

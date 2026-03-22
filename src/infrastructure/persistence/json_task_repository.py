@@ -1,5 +1,5 @@
 """
-基于JSON文件的任务仓储实现
+JSON file-based task repository implementation.
 """
 from typing import List, Optional
 import json
@@ -9,13 +9,13 @@ from src.domain.repositories.task_repository import TaskRepository
 
 
 class JsonTaskRepository(TaskRepository):
-    """基于JSON文件的任务仓储"""
+    """JSON file-based task repository."""
 
     def __init__(self, config_file: str = "config.json"):
         self.config_file = config_file
 
     async def find_all(self) -> List[Task]:
-        """获取所有任务"""
+        """Retrieve all tasks."""
         try:
             async with aiofiles.open(self.config_file, 'r', encoding='utf-8') as f:
                 content = await f.read()
@@ -31,25 +31,25 @@ class JsonTaskRepository(TaskRepository):
         except FileNotFoundError:
             return []
         except json.JSONDecodeError:
-            print(f"配置文件 {self.config_file} 格式错误")
+            print(f"Config file {self.config_file} has invalid format")
             return []
 
     async def find_by_id(self, task_id: int) -> Optional[Task]:
-        """根据ID获取任务"""
+        """Retrieve a task by ID."""
         tasks = await self.find_all()
         if 0 <= task_id < len(tasks):
             return tasks[task_id]
         return None
 
     async def save(self, task: Task) -> Task:
-        """保存任务（创建或更新）"""
+        """Save a task (create or update)."""
         tasks = await self.find_all()
 
         if task.id is not None and 0 <= task.id < len(tasks):
-            # 更新现有任务
+            # Update existing task
             tasks[task.id] = task
         else:
-            # 创建新任务
+            # Create new task
             task.id = len(tasks)
             tasks.append(task)
 
@@ -57,7 +57,7 @@ class JsonTaskRepository(TaskRepository):
         return task
 
     async def delete(self, task_id: int) -> bool:
-        """删除任务"""
+        """Delete a task."""
         tasks = await self.find_all()
         if 0 <= task_id < len(tasks):
             tasks.pop(task_id)
@@ -66,7 +66,7 @@ class JsonTaskRepository(TaskRepository):
         return False
 
     async def _write_tasks(self, tasks: List[Task]):
-        """写入任务列表到文件"""
+        """Write the task list to the config file."""
         tasks_data = [task.model_dump(exclude={'id'}) for task in tasks]
         async with aiofiles.open(self.config_file, 'w', encoding='utf-8') as f:
             await f.write(json.dumps(tasks_data, ensure_ascii=False, indent=2))

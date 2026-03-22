@@ -23,33 +23,33 @@ TEST_TARGETS=(
 
 usage() {
     cat <<'EOF'
-用法:
-  ./run_live_smoke.sh [选项] [-- pytest额外参数]
+Usage:
+  ./run_live_smoke.sh [options] [-- extra pytest arguments]
 
-选项:
-  --keyword <关键词>           覆盖 LIVE_TEST_KEYWORD
-  --account-file <路径>        覆盖 LIVE_TEST_ACCOUNT_STATE_FILE
-  --task-name <名称>           覆盖 LIVE_TEST_TASK_NAME
-  --timeout <秒>               覆盖 LIVE_TIMEOUT_SECONDS
-  --min-items <数量>           覆盖 LIVE_EXPECT_MIN_ITEMS
-  --debug-limit <数量>         覆盖 LIVE_TEST_DEBUG_LIMIT（默认 1，仅分析前 N 个新商品）
-  --with-generation            显式开启 live_slow（默认已开启）
-  --without-generation         关闭 live_slow，只执行主 smoke
-  --dry-run                    只打印配置和将执行的命令，不真正运行
-  --help                       显示帮助
+Options:
+  --keyword <keyword>          Override LIVE_TEST_KEYWORD
+  --account-file <path>        Override LIVE_TEST_ACCOUNT_STATE_FILE
+  --task-name <name>           Override LIVE_TEST_TASK_NAME
+  --timeout <seconds>          Override LIVE_TIMEOUT_SECONDS
+  --min-items <count>          Override LIVE_EXPECT_MIN_ITEMS
+  --debug-limit <count>        Override LIVE_TEST_DEBUG_LIMIT (default 1; analyse only the first N new products)
+  --with-generation            Explicitly enable live_slow (enabled by default)
+  --without-generation         Disable live_slow; run only the main smoke suite
+  --dry-run                    Print configuration and the command that would run without actually executing
+  --help                       Show this help message
 
-示例:
+Examples:
   ./run_live_smoke.sh
   ./run_live_smoke.sh --keyword "MacBook Air M1" --min-items 2
   ./run_live_smoke.sh --without-generation
   ./run_live_smoke.sh -- -k live_real_traffic
 
-说明:
-  0. 默认先执行任务创建 CRUD 集成测试，再执行 tests/live 真实流量 smoke
-  1. 脚本会自动设置 RUN_LIVE_TESTS=1
-  2. 若未设置 LIVE_TEST_ACCOUNT_STATE_FILE，会自动尝试使用 state/ 下第一个 *.json
-  3. 默认使用 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1，避免本机第三方 pytest 插件干扰
-  4. 默认设置 LIVE_TEST_DEBUG_LIMIT=1，使冒烟测试只抓取并分析 1 个新商品
+Notes:
+  0. By default the task-creation CRUD integration test runs first, then the tests/live real-traffic smoke suite.
+  1. The script automatically sets RUN_LIVE_TESTS=1.
+  2. If LIVE_TEST_ACCOUNT_STATE_FILE is not set, the script tries to use the first *.json found under state/.
+  3. PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 is set by default to avoid interference from locally installed pytest plugins.
+  4. LIVE_TEST_DEBUG_LIMIT=1 is set by default so the smoke test scrapes and analyses only 1 new product.
 EOF
 }
 
@@ -57,7 +57,7 @@ require_value() {
     local option="$1"
     local value="${2:-}"
     if [[ -z "$value" ]]; then
-        echo -e "${RED}错误:${NC} ${option} 需要一个值"
+        echo -e "${RED}Error:${NC} ${option} requires a value"
         exit 1
     fi
 }
@@ -132,17 +132,17 @@ while [[ $# -gt 0 ]]; do
 done
 
 if ! command -v "$PYTHON_CMD" >/dev/null 2>&1; then
-    echo -e "${RED}错误:${NC} 未找到 Python 命令: $PYTHON_CMD"
+    echo -e "${RED}Error:${NC} Python command not found: $PYTHON_CMD"
     exit 1
 fi
 
 if ! "$PYTHON_CMD" -m pytest --version >/dev/null 2>&1; then
-    echo -e "${RED}错误:${NC} 当前 Python 环境缺少 pytest"
+    echo -e "${RED}Error:${NC} pytest is not available in the current Python environment"
     exit 1
 fi
 
 if ! "$PYTHON_CMD" -m playwright --version >/dev/null 2>&1; then
-    echo -e "${RED}错误:${NC} 当前 Python 环境缺少 Playwright，请先安装浏览器依赖"
+    echo -e "${RED}Error:${NC} Playwright is not available in the current Python environment; please install browser dependencies first"
     exit 1
 fi
 
@@ -162,12 +162,12 @@ if [[ -z "${LIVE_TEST_ACCOUNT_STATE_FILE:-}" ]]; then
 fi
 
 if [[ -z "${LIVE_TEST_ACCOUNT_STATE_FILE:-}" ]]; then
-    echo -e "${RED}错误:${NC} 未找到 live 登录态文件。请使用 --account-file 指定，或在 state/ 下放置 *.json"
+    echo -e "${RED}Error:${NC} No live login state file found. Use --account-file to specify one, or place a *.json file under state/"
     exit 1
 fi
 
 if [[ ! -f "${LIVE_TEST_ACCOUNT_STATE_FILE}" ]]; then
-    echo -e "${RED}错误:${NC} 登录态文件不存在: ${LIVE_TEST_ACCOUNT_STATE_FILE}"
+    echo -e "${RED}Error:${NC} Login state file does not exist: ${LIVE_TEST_ACCOUNT_STATE_FILE}"
     exit 1
 fi
 
@@ -180,23 +180,23 @@ else
 fi
 
 echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}闲鱼真实流量 Live Smoke 一键测试${NC}"
+echo -e "${GREEN}Goofish Real-Traffic Live Smoke Test${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo -e "${YELLOW}Python:${NC} $PYTHON_CMD"
-echo -e "${YELLOW}关键词:${NC} ${LIVE_TEST_KEYWORD}"
-echo -e "${YELLOW}任务名:${NC} ${LIVE_TEST_TASK_NAME}"
-echo -e "${YELLOW}登录态:${NC} ${LIVE_TEST_ACCOUNT_STATE_FILE}"
-echo -e "${YELLOW}最少结果数:${NC} ${LIVE_EXPECT_MIN_ITEMS}"
-echo -e "${YELLOW}抓取/分析商品上限:${NC} ${LIVE_TEST_DEBUG_LIMIT}"
-echo -e "${YELLOW}超时(秒):${NC} ${LIVE_TIMEOUT_SECONDS}"
-echo -e "${YELLOW}任务生成慢用例:${NC} ${LIVE_ENABLE_TASK_GENERATION}"
-echo -e "${YELLOW}任务创建前置用例:${NC} ${TASK_CREATE_TEST}"
+echo -e "${YELLOW}Keyword:${NC} ${LIVE_TEST_KEYWORD}"
+echo -e "${YELLOW}Task name:${NC} ${LIVE_TEST_TASK_NAME}"
+echo -e "${YELLOW}Login state:${NC} ${LIVE_TEST_ACCOUNT_STATE_FILE}"
+echo -e "${YELLOW}Min results:${NC} ${LIVE_EXPECT_MIN_ITEMS}"
+echo -e "${YELLOW}Scrape/analyse product limit:${NC} ${LIVE_TEST_DEBUG_LIMIT}"
+echo -e "${YELLOW}Timeout (seconds):${NC} ${LIVE_TIMEOUT_SECONDS}"
+echo -e "${YELLOW}Task generation slow cases:${NC} ${LIVE_ENABLE_TASK_GENERATION}"
+echo -e "${YELLOW}Task creation pre-test:${NC} ${TASK_CREATE_TEST}"
 if [[ -n "$MARK_EXPRESSION" ]]; then
     echo -e "${YELLOW}Pytest Marker:${NC} ${MARK_EXPRESSION}"
 else
     echo -e "${YELLOW}Pytest Marker:${NC} <none>"
 fi
-echo -e "${YELLOW}禁用插件自动加载:${NC} ${PYTEST_DISABLE_PLUGIN_AUTOLOAD}"
+echo -e "${YELLOW}Disable plugin autoload:${NC} ${PYTEST_DISABLE_PLUGIN_AUTOLOAD}"
 
 CMD=(
     "$PYTHON_CMD" -m pytest
@@ -212,10 +212,10 @@ if [[ ${#PYTEST_ARGS[@]} -gt 0 ]]; then
     CMD+=("${PYTEST_ARGS[@]}")
 fi
 
-echo -e "${YELLOW}执行命令:${NC} ${CMD[*]}"
+echo -e "${YELLOW}Command:${NC} ${CMD[*]}"
 
 if [[ "$DRY_RUN" == "true" ]]; then
-    echo -e "${GREEN}Dry run 完成，未实际执行测试。${NC}"
+    echo -e "${GREEN}Dry run complete; no tests were actually executed.${NC}"
     exit 0
 fi
 

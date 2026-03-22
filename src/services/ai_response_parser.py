@@ -1,18 +1,18 @@
 """
-AI 响应解析工具
+AI response parsing utilities.
 """
 import json
 from typing import Any
 
 
 class EmptyAIResponseError(ValueError):
-    """AI 返回了空内容。"""
+    """AI returned empty content."""
 
 
 def extract_ai_response_content(response: Any) -> str:
-    """从不同形态的 AI 响应中提取文本内容。"""
+    """Extract text content from various AI response shapes."""
     if response is None:
-        raise EmptyAIResponseError("AI响应对象为空。")
+        raise EmptyAIResponseError("AI response object is empty.")
 
     if isinstance(response, (bytes, bytearray)):
         text = response.decode("utf-8", errors="replace")
@@ -29,15 +29,15 @@ def extract_ai_response_content(response: Any) -> str:
     if choices:
         message = getattr(choices[0], "message", None)
         if message is None:
-            raise EmptyAIResponseError("AI响应缺少 message。")
+            raise EmptyAIResponseError("AI response is missing message.")
         content = getattr(message, "content", None)
         return _normalize_text_content(_coerce_content_parts(content))
 
-    raise ValueError(f"无法识别的AI响应类型: {type(response).__name__}")
+    raise ValueError(f"Unrecognized AI response type: {type(response).__name__}")
 
 
 def parse_ai_response_json(content: str) -> dict:
-    """解析 AI 文本响应中的 JSON。"""
+    """Parse JSON from an AI text response."""
     cleaned = _strip_code_fences(content)
     try:
         return json.loads(cleaned)
@@ -53,7 +53,7 @@ def _coerce_content_parts(content: Any) -> str:
     if isinstance(content, (bytes, bytearray)):
         return content.decode("utf-8", errors="replace")
     if not isinstance(content, list):
-        raise ValueError(f"AI响应内容类型不受支持: {type(content).__name__}")
+        raise ValueError(f"Unsupported AI response content type: {type(content).__name__}")
 
     parts: list[str] = []
     for item in content:
@@ -74,7 +74,7 @@ def _coerce_content_parts(content: Any) -> str:
 def _normalize_text_content(content: str) -> str:
     text = str(content).strip()
     if not text:
-        raise EmptyAIResponseError("AI响应内容为空。")
+        raise EmptyAIResponseError("AI response content is empty.")
     return text
 
 

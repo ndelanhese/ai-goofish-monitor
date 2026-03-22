@@ -1,6 +1,6 @@
 """
-商品分析分发器
-将卖家资料采集、图片下载、AI 分析和结果保存移出主抓取链路。
+Item analysis dispatcher.
+Moves seller profile collection, image downloading, AI analysis, and result saving out of the main scraping pipeline.
 """
 import asyncio
 import copy
@@ -33,7 +33,7 @@ class ItemAnalysisJob:
 
 
 class ItemAnalysisDispatcher:
-    """用受控并发处理商品分析和落盘。"""
+    """Handles item analysis and persistence with controlled concurrency."""
 
     def __init__(
         self,
@@ -71,8 +71,8 @@ class ItemAnalysisDispatcher:
 
     async def _process_job(self, job: ItemAnalysisJob) -> None:
         record = copy.deepcopy(job.final_record)
-        item_data = record.get("商品信息", {}) or {}
-        record["卖家信息"] = await self._load_seller_info(job)
+        item_data = record.get("product_info", {}) or {}
+        record["seller_info"] = await self._load_seller_info(job)
         record["ai_analysis"] = await self._build_analysis_result(job, record)
         if await self._saver(record, job.keyword):
             self.completed_count += 1
@@ -84,10 +84,10 @@ class ItemAnalysisDispatcher:
             try:
                 seller_info = await self._seller_loader(job.seller_id)
             except Exception as exc:
-                print(f"   [卖家] 采集卖家 {job.seller_id} 信息失败: {exc}")
+                print(f"   [seller] Failed to collect seller {job.seller_id} info: {exc}")
         merged = copy.deepcopy(seller_info or {})
-        merged["卖家芝麻信用"] = job.zhima_credit_text
-        merged["卖家注册时长"] = job.registration_duration_text
+        merged["seller_zhima_credit"] = job.zhima_credit_text
+        merged["seller_registration_duration"] = job.registration_duration_text
         return merged
 
     async def _build_analysis_result(self, job: ItemAnalysisJob, record: dict) -> dict:
@@ -105,7 +105,7 @@ class ItemAnalysisDispatcher:
         return {
             "analysis_source": "ai",
             "is_recommended": True,
-            "reason": "商品已跳过AI分析，直接通知",
+            "reason": "Item skipped AI analysis, notifying directly.",
             "keyword_hit_count": 0,
         }
 
@@ -125,7 +125,7 @@ class ItemAnalysisDispatcher:
         try:
             image_paths = await self._download_images(job, record)
             if not job.prompt_text:
-                return self._build_ai_error_result("任务未配置AI prompt，跳过分析。")
+                return self._build_ai_error_result("No AI prompt configured for this task, skipping analysis.")
             ai_result = await self._ai_analyzer(record, image_paths, job.prompt_text)
             if not ai_result:
                 return self._build_ai_error_result(
@@ -137,7 +137,7 @@ class ItemAnalysisDispatcher:
             return ai_result
         except Exception as exc:
             return self._build_ai_error_result(
-                f"AI分析异常: {exc}",
+                f"AI analysis error: {exc}",
                 error=str(exc),
             )
         finally:
@@ -146,12 +146,12 @@ class ItemAnalysisDispatcher:
     async def _download_images(self, job: ItemAnalysisJob, record: dict) -> list[str]:
         if not job.analyze_images:
             return []
-        item_data = record.get("商品信息", {}) or {}
-        image_urls = item_data.get("商品图片列表", [])
+        item_data = record.get("product_info", {}) or {}
+        image_urls = item_data.get("image_list", [])
         if not image_urls:
             return []
         return await self._image_downloader(
-            item_data["商品ID"],
+            item_data["item_id"],
             image_urls,
             job.task_name,
         )
@@ -162,12 +162,12 @@ class ItemAnalysisDispatcher:
                 if os.path.exists(img_path):
                     os.remove(img_path)
             except Exception as exc:
-                print(f"   [图片] 删除图片文件时出错: {exc}")
+                print(f"   [image] Error deleting image file: {exc}")
 
     async def _notify_if_recommended(self, item_data: dict, analysis_result: dict) -> None:
         if not analysis_result.get("is_recommended"):
             return
         try:
-            await self._notifier(item_data, analysis_result.get("reason", "无"))
+            await self._notifier(item_data, analysis_result.get("reason", "N/A"))
         except Exception as exc:
-            print(f"   [通知] 发送推荐通知失败: {exc}")
+            print(f"   [notify] Failed to send recommendation notification: {exc}")
