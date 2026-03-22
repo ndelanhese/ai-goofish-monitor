@@ -1,5 +1,5 @@
 """
-Cron 解析与校验工具。
+Cron expression parsing and validation utilities.
 """
 from __future__ import annotations
 
@@ -18,9 +18,10 @@ CRON_ALIASES = {
 }
 
 CRON_FORMAT_HINT = (
-    "Cron 表达式无效。支持 5 段（分 时 日 月 周）、"
-    "6 段（秒 分 时 日 月 周）和常见别名（@hourly/@daily/@weekly/@monthly/@yearly）。"
-    "示例：*/15 * * * *、0 8 * * *、0 0 8 * * *、@daily。"
+    "Invalid cron expression. Expected 5 fields (minute hour day month weekday), "
+    "6 fields (second minute hour day month weekday), or a common alias "
+    "(@hourly/@daily/@weekly/@monthly/@yearly). "
+    "Examples: */15 * * * *, 0 8 * * *, 0 0 8 * * *, @daily."
 )
 
 

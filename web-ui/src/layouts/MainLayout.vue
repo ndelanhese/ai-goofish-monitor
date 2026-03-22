@@ -11,7 +11,7 @@ const { t } = useI18n()
 
 <template>
   <div class="relative min-h-screen w-full flex flex-col bg-slate-50 selection:bg-primary/20">
-    <!-- 背景装饰渐变 -->
+    <!-- Background decorative gradient -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden">
       <div class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-primary/5 blur-[120px] animate-pulse"></div>
       <div class="absolute top-[20%] -right-[5%] w-[30%] h-[35%] rounded-full bg-blue-400/5 blur-[100px]"></div>

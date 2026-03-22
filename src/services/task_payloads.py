@@ -1,5 +1,5 @@
 """
-任务接口响应序列化辅助。
+Task API response serialization helpers.
 """
 from __future__ import annotations
 

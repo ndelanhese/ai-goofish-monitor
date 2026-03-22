@@ -15,13 +15,13 @@ def test_parse_ai_response_json_uses_first_object_when_multiple_json_objects_are
 
 
 def test_parse_ai_response_json_extracts_json_from_wrapped_text():
-    content = """分析结果如下：
+    content = """Analysis result:
 
 ```json
 {"is_recommended": true, "reason": "wrapped"}
 ```
 
-请按第一份结果处理。"""
+Please use the first result."""
 
     result = parse_ai_response_json(content)
 
@@ -30,4 +30,4 @@ def test_parse_ai_response_json_extracts_json_from_wrapped_text():
 
 def test_parse_ai_response_json_raises_when_no_json_exists():
     with pytest.raises(ValueError):
-        parse_ai_response_json("没有任何 JSON 内容")
+        parse_ai_response_json("No JSON content at all")

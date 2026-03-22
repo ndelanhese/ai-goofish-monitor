@@ -1,5 +1,5 @@
 """
-Telegram 通知客户端
+Telegram notification client.
 """
 import asyncio
 from typing import Dict
@@ -12,7 +12,7 @@ from .base import NotificationClient
 
 
 class TelegramClient(NotificationClient):
-    """Telegram 通知客户端"""
+    """Telegram notification client."""
 
     channel_key = "telegram"
     display_name = "Telegram"
@@ -32,22 +32,22 @@ class TelegramClient(NotificationClient):
         )
 
     async def send(self, product_data: Dict, reason: str) -> None:
-        """发送 Telegram 通知"""
+        """Send a Telegram notification."""
         if not self.is_enabled():
-            raise RuntimeError("Telegram 未启用")
+            raise RuntimeError("Telegram is not enabled")
 
         message = self._build_message(product_data, reason)
         telegram_message = [
-            "🚨 <b>新推荐!</b>",
+            "🚨 <b>New Recommendation!</b>",
             "",
             f"<b>{message.title[:50]}{'...' if len(message.title) > 50 else ''}</b>",
             "",
-            f"💰 价格: {message.price}",
-            f"📝 原因: {message.reason}",
+            f"💰 Price: {message.price}",
+            f"📝 Reason: {message.reason}",
         ]
         if message.mobile_link:
-            telegram_message.append(f"📱 <a href='{message.mobile_link}'>手机端链接</a>")
-        telegram_message.append(f"💻 <a href='{message.desktop_link}'>电脑端链接</a>")
+            telegram_message.append(f"📱 <a href='{message.mobile_link}'>Mobile link</a>")
+        telegram_message.append(f"💻 <a href='{message.desktop_link}'>Desktop link</a>")
 
         telegram_api_url = f"{self.api_base_url}/bot{self.bot_token}/sendMessage"
         telegram_payload = {
@@ -71,4 +71,4 @@ class TelegramClient(NotificationClient):
         response.raise_for_status()
         result = response.json()
         if not result.get("ok"):
-            raise RuntimeError(result.get("description", "Telegram 返回未知错误"))
+            raise RuntimeError(result.get("description", "Telegram returned an unknown error"))

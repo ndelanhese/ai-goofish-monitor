@@ -1,5 +1,5 @@
 """
-任务生成作业服务
+Task generation job service.
 """
 import asyncio
 from copy import deepcopy
@@ -11,17 +11,17 @@ from src.domain.models.task import Task
 from src.domain.models.task_generation import TaskGenerationJob, TaskGenerationStep
 
 DEFAULT_GENERATION_STEPS: tuple[tuple[str, str], ...] = (
-    ("prepare", "接收创建请求"),
-    ("reference", "读取参考文件"),
-    ("prompt", "构建提示词"),
-    ("llm", "调用 AI 生成标准"),
-    ("persist", "保存分析标准"),
-    ("task", "创建任务记录"),
+    ("prepare", "Receiving creation request"),
+    ("reference", "Reading reference file"),
+    ("prompt", "Building prompt"),
+    ("llm", "Calling AI to generate criteria"),
+    ("persist", "Saving analysis criteria"),
+    ("task", "Creating task record"),
 )
 
 
 class TaskGenerationService:
-    """管理 AI 任务生成的后台作业状态"""
+    """Manages background job state for AI task generation."""
 
     def __init__(self, step_specs: Iterable[tuple[str, str]] = DEFAULT_GENERATION_STEPS):
         self._step_specs = tuple(step_specs)
@@ -122,7 +122,7 @@ class TaskGenerationService:
     def _require_job(self, job_id: str) -> TaskGenerationJob:
         job = self._jobs.get(job_id)
         if not job:
-            raise KeyError(f"任务生成作业不存在: {job_id}")
+            raise KeyError(f"Task generation job not found: {job_id}")
         return job
 
     def _find_step(self, job: TaskGenerationJob, step_key: str) -> Optional[TaskGenerationStep]:
@@ -135,4 +135,4 @@ class TaskGenerationService:
         for index, step in enumerate(job.steps):
             if step.key == step_key:
                 return index
-        raise KeyError(f"未知的任务生成步骤: {step_key}")
+        raise KeyError(f"Unknown task generation step: {step_key}")

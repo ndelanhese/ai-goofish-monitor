@@ -1,5 +1,5 @@
 """
-结果文件管理路由
+Result file management routes
 """
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import Response
@@ -41,17 +41,17 @@ def _build_download_headers(export_name: str) -> dict[str, str]:
 
 @router.get("/files")
 async def get_result_files():
-    """获取所有结果文件列表"""
+    """Get list of all result files"""
     return {"files": await list_result_filenames()}
 
 
 @router.get("/files/{filename:path}")
 async def download_result_file(filename: str):
-    """下载指定的结果文件"""
+    """Download a specified result file"""
     if ".." in filename or filename.startswith("/"):
-        return {"error": "非法的文件路径"}
+        return {"error": "Invalid file path"}
     if not filename.endswith(".jsonl") or not await result_file_exists(filename):
-        return {"error": "文件不存在"}
+        return {"error": "File does not exist"}
     return Response(
         content=await build_result_ndjson(filename),
         media_type="application/x-ndjson",
@@ -61,15 +61,15 @@ async def download_result_file(filename: str):
 
 @router.delete("/files/{filename:path}")
 async def delete_result_file(filename: str):
-    """删除指定的结果文件"""
+    """Delete a specified result file"""
     if ".." in filename or filename.startswith("/"):
-        raise HTTPException(status_code=400, detail="非法的文件路径")
+        raise HTTPException(status_code=400, detail="Invalid file path")
     if not filename.endswith(".jsonl"):
-        raise HTTPException(status_code=400, detail="只能删除 .jsonl 文件")
+        raise HTTPException(status_code=400, detail="Only .jsonl files can be deleted")
     deleted_rows = await delete_result_file_records(filename)
     if deleted_rows <= 0:
-        raise HTTPException(status_code=404, detail="文件不存在")
-    return {"message": f"文件 {filename} 已成功删除"}
+        raise HTTPException(status_code=404, detail="File does not exist")
+    return {"message": f"File {filename} deleted successfully"}
 
 
 @router.get("/{filename}")
@@ -77,15 +77,15 @@ async def get_result_file_content(
     filename: str,
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
-    recommended_only: bool = Query(False),  # 兼容旧参数，等价于 ai_recommended_only
+    recommended_only: bool = Query(False),  # Legacy parameter, equivalent to ai_recommended_only
     ai_recommended_only: bool = Query(False),
     keyword_recommended_only: bool = Query(False),
     sort_by: str = Query("crawl_time"),
     sort_order: str = Query("desc"),
 ):
-    """读取指定的 .jsonl 文件内容，支持分页、筛选和排序"""
+    """Read the contents of a specified .jsonl file with pagination, filtering, and sorting"""
     if ai_recommended_only and keyword_recommended_only:
-        raise HTTPException(status_code=400, detail="AI推荐筛选与关键词推荐筛选不能同时开启。")
+        raise HTTPException(status_code=400, detail="AI recommended filter and keyword recommended filter cannot both be enabled.")
 
     if recommended_only and not ai_recommended_only and not keyword_recommended_only:
         ai_recommended_only = True
@@ -104,9 +104,9 @@ async def get_result_file_content(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"读取结果文件时出错: {exc}")
+        raise HTTPException(status_code=500, detail=f"Error reading result file: {exc}")
     if total_items <= 0 and not await result_file_exists(filename):
-        raise HTTPException(status_code=404, detail="结果文件未找到")
+        raise HTTPException(status_code=404, detail="Result file not found")
     paginated_results = enrich_records_with_price_insight(items, filename)
 
     return {
@@ -137,7 +137,7 @@ async def export_result_file_content(
     sort_order: str = Query("desc"),
 ):
     if ai_recommended_only and keyword_recommended_only:
-        raise HTTPException(status_code=400, detail="AI推荐筛选与关键词推荐筛选不能同时开启。")
+        raise HTTPException(status_code=400, detail="AI recommended filter and keyword recommended filter cannot both be enabled.")
     if recommended_only and not ai_recommended_only and not keyword_recommended_only:
         ai_recommended_only = True
 
@@ -156,9 +156,9 @@ async def export_result_file_content(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"导出结果文件时出错: {exc}")
+        raise HTTPException(status_code=500, detail=f"Error exporting result file: {exc}")
     if not results and not await result_file_exists(filename):
-        raise HTTPException(status_code=404, detail="结果文件未找到")
+        raise HTTPException(status_code=404, detail="Result file not found")
 
     export_name = filename.replace(".jsonl", ".csv")
     headers = _build_download_headers(export_name)

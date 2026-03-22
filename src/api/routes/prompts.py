@@ -1,5 +1,5 @@
 """
-Prompt 管理路由
+Prompt management routes
 """
 import os
 import aiofiles
@@ -11,13 +11,13 @@ router = APIRouter(prefix="/api/prompts", tags=["prompts"])
 
 
 class PromptUpdate(BaseModel):
-    """Prompt 更新模型"""
+    """Prompt update model"""
     content: str
 
 
 @router.get("")
 async def list_prompts():
-    """列出所有 prompt 文件"""
+    """List all prompt files"""
     prompts_dir = "prompts"
     if not os.path.isdir(prompts_dir):
         return []
@@ -26,13 +26,13 @@ async def list_prompts():
 
 @router.get("/{filename}")
 async def get_prompt(filename: str):
-    """获取 prompt 文件内容"""
+    """Get the content of a prompt file"""
     if "/" in filename or ".." in filename:
-        raise HTTPException(status_code=400, detail="无效的文件名")
+        raise HTTPException(status_code=400, detail="Invalid filename")
 
     filepath = os.path.join("prompts", filename)
     if not os.path.exists(filepath):
-        raise HTTPException(status_code=404, detail="Prompt 文件未找到")
+        raise HTTPException(status_code=404, detail="Prompt file not found")
 
     async with aiofiles.open(filepath, 'r', encoding='utf-8') as f:
         content = await f.read()
@@ -44,17 +44,17 @@ async def update_prompt(
     filename: str,
     prompt_update: PromptUpdate,
 ):
-    """更新 prompt 文件内容"""
+    """Update the content of a prompt file"""
     if "/" in filename or ".." in filename:
-        raise HTTPException(status_code=400, detail="无效的文件名")
+        raise HTTPException(status_code=400, detail="Invalid filename")
 
     filepath = os.path.join("prompts", filename)
     if not os.path.exists(filepath):
-        raise HTTPException(status_code=404, detail="Prompt 文件未找到")
+        raise HTTPException(status_code=404, detail="Prompt file not found")
 
     try:
         async with aiofiles.open(filepath, 'w', encoding='utf-8') as f:
             await f.write(prompt_update.content)
-        return {"message": f"Prompt 文件 '{filename}' 更新成功"}
+        return {"message": f"Prompt file '{filename}' updated successfully"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"写入文件时出错: {e}")
+        raise HTTPException(status_code=500, detail=f"Error writing file: {e}")

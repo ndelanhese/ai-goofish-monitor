@@ -1,5 +1,5 @@
 """
-任务生成作业执行器
+Task generation job runner.
 """
 import os
 
@@ -45,7 +45,7 @@ def build_task_create(req: TaskGenerateRequest, criteria_file: str) -> TaskCreat
 
 async def save_generated_criteria(output_filename: str, generated_criteria: str) -> None:
     if not generated_criteria or not generated_criteria.strip():
-        raise RuntimeError("AI 未能生成分析标准，返回内容为空。")
+        raise RuntimeError("AI failed to generate analysis criteria: returned empty content.")
 
     os.makedirs("prompts", exist_ok=True)
     async with aiofiles.open(output_filename, "w", encoding="utf-8") as file:
@@ -83,7 +83,7 @@ async def run_ai_generation_job(
             generation_service,
             job_id,
             "prepare",
-            "已接收请求，开始准备分析标准。",
+            "Request received, preparing analysis criteria.",
         )
 
         async def report_progress(step_key: str, message: str) -> None:
@@ -99,7 +99,7 @@ async def run_ai_generation_job(
             generation_service,
             job_id,
             "persist",
-            f"正在保存分析标准到 {output_filename}。",
+            f"Saving analysis criteria to {output_filename}.",
         )
         await save_generated_criteria(output_filename, generated_criteria)
 
@@ -107,12 +107,12 @@ async def run_ai_generation_job(
             generation_service,
             job_id,
             "task",
-            "分析标准已生成，正在创建任务记录。",
+            "Analysis criteria generated, creating task record.",
         )
         task = await task_service.create_task(build_task_create(req, output_filename))
         await reload_scheduler(task_service, scheduler_service)
-        await generation_service.complete(job_id, task, f"任务“{req.task_name}”创建完成。")
+        await generation_service.complete(job_id, task, f"Task \"{req.task_name}\" created successfully.")
     except Exception as exc:
         if os.path.exists(output_filename):
             os.remove(output_filename)
-        await generation_service.fail(job_id, f"AI 任务生成失败: {exc}")
+        await generation_service.fail(job_id, f"AI task generation failed: {exc}")

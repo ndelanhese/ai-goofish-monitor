@@ -21,32 +21,32 @@ def test_results_filter_and_sort_for_keyword_recommendations(tmp_path, monkeypat
 
     records = [
         {
-            "爬取时间": "2026-01-01T01:00:00",
-            "商品信息": {"当前售价": "¥1000", "发布时间": "2026-01-01 10:00"},
+            "scraped_at": "2026-01-01T01:00:00",
+            "product_info": {"current_price": "¥1000", "publish_time": "2026-01-01 10:00"},
             "ai_analysis": {
                 "analysis_source": "keyword",
                 "is_recommended": True,
                 "keyword_hit_count": 3,
-                "reason": "命中 3 个关键词",
+                "reason": "Matched 3 keywords",
             },
         },
         {
-            "爬取时间": "2026-01-01T02:00:00",
-            "商品信息": {"当前售价": "¥2000", "发布时间": "2026-01-01 11:00"},
+            "scraped_at": "2026-01-01T02:00:00",
+            "product_info": {"current_price": "¥2000", "publish_time": "2026-01-01 11:00"},
             "ai_analysis": {
                 "analysis_source": "keyword",
                 "is_recommended": True,
                 "keyword_hit_count": 1,
-                "reason": "命中 1 个关键词",
+                "reason": "Matched 1 keyword",
             },
         },
         {
-            "爬取时间": "2026-01-01T03:00:00",
-            "商品信息": {"当前售价": "¥3000", "发布时间": "2026-01-01 12:00"},
+            "scraped_at": "2026-01-01T03:00:00",
+            "product_info": {"current_price": "¥3000", "publish_time": "2026-01-01 12:00"},
             "ai_analysis": {
                 "analysis_source": "ai",
                 "is_recommended": True,
-                "reason": "AI推荐",
+                "reason": "AI recommended",
             },
         },
     ]
@@ -90,39 +90,39 @@ def test_results_insights_and_export_csv(tmp_path, monkeypatch):
 
     records = [
         {
-            "爬取时间": "2026-01-02T09:00:00",
-            "搜索关键字": "demo",
-            "任务名称": "Demo 任务",
-            "商品信息": {
-                "商品ID": "1001",
-                "商品标题": "Demo One",
-                "商品链接": "https://www.goofish.com/item?id=1001",
-                "当前售价": "¥950",
-                "发布时间": "2026-01-02 08:30",
+            "scraped_at": "2026-01-02T09:00:00",
+            "search_keyword": "demo",
+            "task_name": "Demo Task",
+            "product_info": {
+                "item_id": "1001",
+                "product_title": "Demo One",
+                "product_link": "https://www.goofish.com/item?id=1001",
+                "current_price": "¥950",
+                "publish_time": "2026-01-02 08:30",
             },
-            "卖家信息": {"卖家昵称": "卖家A"},
+            "seller_info": {"seller_nickname": "Seller A"},
             "ai_analysis": {
                 "analysis_source": "ai",
                 "is_recommended": True,
-                "reason": "价格低于近期均价",
+                "reason": "Price is below recent market average",
             },
         },
         {
-            "爬取时间": "2026-01-02T09:05:00",
-            "搜索关键字": "demo",
-            "任务名称": "Demo 任务",
-            "商品信息": {
-                "商品ID": "1002",
-                "商品标题": "Demo Two",
-                "商品链接": "https://www.goofish.com/item?id=1002",
-                "当前售价": "¥1200",
-                "发布时间": "2026-01-02 08:45",
+            "scraped_at": "2026-01-02T09:05:00",
+            "search_keyword": "demo",
+            "task_name": "Demo Task",
+            "product_info": {
+                "item_id": "1002",
+                "product_title": "Demo Two",
+                "product_link": "https://www.goofish.com/item?id=1002",
+                "current_price": "¥1200",
+                "publish_time": "2026-01-02 08:45",
             },
-            "卖家信息": {"卖家昵称": "卖家B"},
+            "seller_info": {"seller_nickname": "Seller B"},
             "ai_analysis": {
                 "analysis_source": "keyword",
                 "is_recommended": False,
-                "reason": "未命中",
+                "reason": "Not matched",
                 "keyword_hit_count": 0,
             },
         },
@@ -131,19 +131,19 @@ def test_results_insights_and_export_csv(tmp_path, monkeypatch):
 
     record_market_snapshots(
         keyword="demo",
-        task_name="Demo 任务",
+        task_name="Demo Task",
         items=[
             {
-                "商品ID": "1001",
-                "商品标题": "Demo One",
-                "当前售价": "¥1000",
-                "商品链接": "https://www.goofish.com/item?id=1001",
+                "item_id": "1001",
+                "product_title": "Demo One",
+                "current_price": "¥1000",
+                "product_link": "https://www.goofish.com/item?id=1001",
             },
             {
-                "商品ID": "1002",
-                "商品标题": "Demo Two",
-                "当前售价": "¥1200",
-                "商品链接": "https://www.goofish.com/item?id=1002",
+                "item_id": "1002",
+                "product_title": "Demo Two",
+                "current_price": "¥1200",
+                "product_link": "https://www.goofish.com/item?id=1002",
             },
         ],
         run_id="run-1",
@@ -152,19 +152,19 @@ def test_results_insights_and_export_csv(tmp_path, monkeypatch):
     )
     record_market_snapshots(
         keyword="demo",
-        task_name="Demo 任务",
+        task_name="Demo Task",
         items=[
             {
-                "商品ID": "1001",
-                "商品标题": "Demo One",
-                "当前售价": "¥950",
-                "商品链接": "https://www.goofish.com/item?id=1001",
+                "item_id": "1001",
+                "product_title": "Demo One",
+                "current_price": "¥950",
+                "product_link": "https://www.goofish.com/item?id=1001",
             },
             {
-                "商品ID": "1002",
-                "商品标题": "Demo Two",
-                "当前售价": "¥1180",
-                "商品链接": "https://www.goofish.com/item?id=1002",
+                "item_id": "1002",
+                "product_title": "Demo Two",
+                "current_price": "¥1180",
+                "product_link": "https://www.goofish.com/item?id=1002",
             },
         ],
         run_id="run-2",
@@ -194,7 +194,7 @@ def test_results_insights_and_export_csv(tmp_path, monkeypatch):
     assert export_resp.status_code == 200
     assert "text/csv" in export_resp.headers["content-type"]
     text = export_resp.text
-    assert "任务名称,搜索关键字,商品ID,商品标题" in text
+    assert "task_name,search_keyword,item_id,product_title" in text
     assert "Demo One" in text
 
 
@@ -206,21 +206,21 @@ def test_results_export_csv_supports_unicode_filename(tmp_path, monkeypatch):
 
     records = [
         {
-            "爬取时间": "2026-01-02T09:00:00",
-            "搜索关键字": "演示",
-            "任务名称": "演示任务",
-            "商品信息": {
-                "商品ID": "1001",
-                "商品标题": "演示商品",
-                "商品链接": "https://www.goofish.com/item?id=1001",
-                "当前售价": "¥950",
-                "发布时间": "2026-01-02 08:30",
+            "scraped_at": "2026-01-02T09:00:00",
+            "search_keyword": "演示",
+            "task_name": "Demo Task",
+            "product_info": {
+                "item_id": "1001",
+                "product_title": "Demo Item",
+                "product_link": "https://www.goofish.com/item?id=1001",
+                "current_price": "¥950",
+                "publish_time": "2026-01-02 08:30",
             },
-            "卖家信息": {"卖家昵称": "卖家A"},
+            "seller_info": {"seller_nickname": "Seller A"},
             "ai_analysis": {
                 "analysis_source": "ai",
                 "is_recommended": True,
-                "reason": "价格合理",
+                "reason": "Price is reasonable",
             },
         }
     ]

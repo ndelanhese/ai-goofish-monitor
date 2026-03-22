@@ -1,5 +1,5 @@
 """
-通用 Webhook 通知客户端
+Generic Webhook notification client.
 """
 import asyncio
 import json
@@ -12,7 +12,7 @@ from .base import NotificationClient, NotificationMessage
 
 
 class WebhookClient(NotificationClient):
-    """通用 Webhook 通知客户端"""
+    """Generic Webhook notification client."""
 
     channel_key = "webhook"
     display_name = "Webhook"
@@ -37,7 +37,7 @@ class WebhookClient(NotificationClient):
 
     async def send(self, product_data: Dict, reason: str) -> None:
         if not self.is_enabled():
-            raise RuntimeError("Webhook 未启用")
+            raise RuntimeError("Webhook is not enabled")
 
         message = self._build_message(product_data, reason)
         headers = self._parse_json(self.webhook_headers, "WEBHOOK_HEADERS", expect_dict=True) or {}
@@ -96,12 +96,12 @@ class WebhookClient(NotificationClient):
 
         if self.webhook_content_type == "FORM":
             if not isinstance(rendered_body, dict):
-                raise ValueError("WEBHOOK_BODY 在 FORM 模式下必须是 JSON 对象")
+                raise ValueError("WEBHOOK_BODY must be a JSON object in FORM mode")
             if "Content-Type" not in headers and "content-type" not in headers:
                 headers["Content-Type"] = "application/x-www-form-urlencoded"
             return None, rendered_body
 
-        raise ValueError(f"不支持的 WEBHOOK_CONTENT_TYPE: {self.webhook_content_type}")
+        raise ValueError(f"Unsupported WEBHOOK_CONTENT_TYPE: {self.webhook_content_type}")
 
     def _parse_json(
         self,
@@ -114,9 +114,9 @@ class WebhookClient(NotificationClient):
         try:
             parsed = json.loads(raw_value)
         except json.JSONDecodeError as exc:
-            raise ValueError(f"{field_name} 不是合法 JSON: {exc.msg}") from exc
+            raise ValueError(f"{field_name} is not valid JSON: {exc.msg}") from exc
         if expect_dict and not isinstance(parsed, dict):
-            raise ValueError(f"{field_name} 必须是 JSON 对象")
+            raise ValueError(f"{field_name} must be a JSON object")
         return parsed
 
     def _render_template(self, value: Any, message: NotificationMessage) -> Any:

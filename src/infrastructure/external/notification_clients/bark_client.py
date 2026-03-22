@@ -1,5 +1,5 @@
 """
-Bark 通知客户端
+Bark notification client.
 """
 import asyncio
 import requests
@@ -8,7 +8,7 @@ from .base import NotificationClient
 
 
 class BarkClient(NotificationClient):
-    """Bark 通知客户端"""
+    """Bark notification client."""
 
     channel_key = "bark"
     display_name = "Bark"
@@ -18,9 +18,9 @@ class BarkClient(NotificationClient):
         self.bark_url = bark_url
 
     async def send(self, product_data: Dict, reason: str) -> None:
-        """发送 Bark 通知"""
+        """Send a Bark notification."""
         if not self.is_enabled():
-            raise RuntimeError("Bark 未启用")
+            raise RuntimeError("Bark is not enabled")
 
         message = self._build_message(product_data, reason)
         bark_payload = {
@@ -28,7 +28,7 @@ class BarkClient(NotificationClient):
             "body": message.content,
             "url": message.mobile_link or message.desktop_link,
             "level": "timeSensitive",
-            "group": "闲鱼监控"
+            "group": "Goofish Monitor"
         }
 
         if message.image_url:

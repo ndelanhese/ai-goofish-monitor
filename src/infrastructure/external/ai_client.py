@@ -1,6 +1,6 @@
 """
-AI 客户端封装
-提供统一的 AI 调用接口
+AI client wrapper.
+Provides a unified interface for AI API calls.
 """
 import os
 import json
@@ -34,7 +34,7 @@ from src.services.ai_response_parser import (
 
 
 class AIClient:
-    """AI 客户端封装"""
+    """AI client wrapper."""
 
     def __init__(self):
         self.settings: Optional[AISettings] = None
@@ -50,14 +50,14 @@ class AIClient:
         self.client = self._initialize_client()
 
     def _initialize_client(self) -> Optional[AsyncOpenAI]:
-        """初始化 OpenAI 客户端"""
+        """Initialize the OpenAI client."""
         if not self.settings or not self.settings.is_configured():
-            print("警告：AI 配置不完整，AI 功能将不可用")
+            print("Warning: AI configuration is incomplete; AI features will be unavailable")
             return None
 
         try:
             if self.settings.proxy_url:
-                print(f"正在为 AI 请求使用代理: {self.settings.proxy_url}")
+                print(f"Using proxy for AI requests: {self.settings.proxy_url}")
                 os.environ['HTTP_PROXY'] = self.settings.proxy_url
                 os.environ['HTTPS_PROXY'] = self.settings.proxy_url
 
@@ -66,15 +66,15 @@ class AIClient:
                 base_url=self.settings.base_url
             )
         except Exception as e:
-            print(f"初始化 AI 客户端失败: {e}")
+            print(f"Failed to initialize AI client: {e}")
             return None
 
     def is_available(self) -> bool:
-        """检查 AI 客户端是否可用"""
+        """Check whether the AI client is available."""
         return self.client is not None
 
     async def close(self) -> None:
-        """关闭底层异步客户端，避免事件循环结束后再触发清理。"""
+        """Close the underlying async client to avoid cleanup after the event loop ends."""
         client = self.client
         self.client = None
         if client is None:
@@ -87,14 +87,14 @@ class AIClient:
 
     @staticmethod
     def encode_image(image_path: str) -> Optional[str]:
-        """将图片编码为 Base64"""
+        """Encode an image file to Base64."""
         if not image_path or not os.path.exists(image_path):
             return None
         try:
             with open(image_path, "rb") as f:
                 return base64.b64encode(f.read()).decode('utf-8')
         except Exception as e:
-            print(f"编码图片失败: {e}")
+            print(f"Failed to encode image: {e}")
             return None
 
     async def analyze(
@@ -104,18 +104,18 @@ class AIClient:
         prompt_text: str
     ) -> Optional[Dict]:
         """
-        分析商品数据
+        Analyze product data.
 
         Args:
-            product_data: 商品数据
-            image_paths: 图片路径列表
-            prompt_text: 分析提示词
+            product_data: Product data dictionary.
+            image_paths: List of image file paths.
+            prompt_text: Analysis prompt text.
 
         Returns:
-            分析结果
+            Analysis result dictionary, or None on failure.
         """
         if not self.is_available():
-            print("AI 客户端不可用")
+            print("AI client is not available")
             return None
 
         try:
@@ -123,11 +123,11 @@ class AIClient:
             response = await self._call_ai(messages)
             return self._parse_response(response)
         except Exception as e:
-            print(f"AI 分析失败: {e}")
+            print(f"AI analysis failed: {e}")
             return None
 
     def _build_messages(self, product_data: Dict, image_paths: List[str], prompt_text: str) -> List[Dict]:
-        """构建 AI 消息"""
+        """Build AI messages."""
         product_json = json.dumps(product_data, ensure_ascii=False, indent=2)
         image_data_urls: List[str] = []
         for path in image_paths:
@@ -151,7 +151,7 @@ class AIClient:
         max_output_tokens: int = 4000,
         enable_json_output: Optional[bool] = None,
     ) -> str:
-        """调用 AI API"""
+        """Call the AI API."""
         api_mode = CHAT_COMPLETIONS_API_MODE
         use_response_format = (
             self.settings.enable_response_format
@@ -186,7 +186,7 @@ class AIClient:
             except EmptyAIResponseError as exc:
                 if attempt < max_attempts - 1:
                     print(
-                        f"AI响应为空，正在自动重试 ({attempt + 2}/{max_attempts})"
+                        f"AI response was empty, retrying automatically ({attempt + 2}/{max_attempts})"
                     )
                     continue
                 raise exc
@@ -198,32 +198,32 @@ class AIClient:
                 ):
                     api_mode = RESPONSES_API_MODE
                     changed = True
-                    print("当前服务未实现 Chat Completions API，正在自动回退到 Responses API")
+                    print("Chat Completions API is not supported by this service; falling back to Responses API")
                 elif (
                     api_mode == RESPONSES_API_MODE
                     and is_responses_api_unsupported_error(exc)
                 ):
                     api_mode = CHAT_COMPLETIONS_API_MODE
                     changed = True
-                    print("当前服务未实现 Responses API，正在自动回退到 Chat Completions API")
+                    print("Responses API is not supported by this service; falling back to Chat Completions API")
                 if use_response_format and is_json_output_unsupported_error(exc):
                     use_response_format = False
                     changed = True
-                    print("当前模型不支持结构化 JSON 输出，正在自动重试并移除该参数")
+                    print("Structured JSON output is not supported by this model; retrying without that parameter")
                 if use_temperature and is_temperature_unsupported_error(exc):
                     use_temperature = False
                     changed = True
-                    print("当前模型不支持 temperature 参数，正在自动重试并移除该参数")
+                    print("temperature parameter is not supported by this model; retrying without it")
                 if changed and attempt < max_attempts - 1:
                     continue
                 raise
 
-        raise RuntimeError("AI 调用在兼容性重试后仍未返回结果")
+        raise RuntimeError("AI call did not return a result after compatibility retries")
 
     def _parse_response(self, response_text: str) -> Optional[Dict]:
-        """解析 AI 响应"""
+        """Parse the AI response."""
         try:
             return parse_ai_response_json(response_text)
         except json.JSONDecodeError:
-            print(f"无法解析 AI 响应: {response_text[:100]}")
+            print(f"Failed to parse AI response: {response_text[:100]}")
             return None

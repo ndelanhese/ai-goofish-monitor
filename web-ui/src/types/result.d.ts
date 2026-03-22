@@ -1,37 +1,37 @@
 // Based on the data structure from web_server.py and scraper.py
 
 export interface ProductInfo {
-  "商品标题": string;
-  "当前售价": string;
-  "商品原价"?: string;
-  "“想要”人数"?: string | number;
-  "商品标签"?: string[];
-  "发货地区"?: string;
-  "卖家昵称"?: string;
-  "商品链接": string;
-  "发布时间"?: string;
-  "商品ID": string;
-  "商品图片列表"?: string[];
-  "商品主图链接"?: string;
-  "浏览量"?: string | number;
+  product_title: string;
+  current_price: string;
+  original_price?: string;
+  wants_count?: string | number;
+  product_tags?: string[];
+  shipping_region?: string;
+  seller_nickname?: string;
+  product_link: string;
+  publish_time?: string;
+  item_id: string;
+  image_list?: string[];
+  main_image_url?: string;
+  view_count?: string | number;
 }
 
 export interface SellerInfo {
-  "卖家昵称"?: string;
-  "卖家头像链接"?: string;
-  "卖家个性签名"?: string;
-  "卖家在售/已售商品数"?: string;
-  "卖家收到的评价总数"?: string;
-  "卖家信用等级"?: string;
-  "买家信用等级"?: string;
-  "卖家芝麻信用"?: string;
-  "卖家注册时长"?: string;
-  "作为卖家的好评数"?: string;
-  "作为卖家的好评率"?: string;
-  "作为买家的好评数"?: string;
-  "作为买家的好评率"?: string;
-  "卖家发布的商品列表"?: any[]; // Define more strictly if needed
-  "卖家收到的评价列表"?: any[]; // Define more strictly if needed
+  seller_nickname?: string;
+  seller_avatar?: string;
+  seller_bio?: string;
+  seller_items_count?: string;
+  seller_total_ratings?: string;
+  seller_credit_level?: string;
+  buyer_credit_level?: string;
+  sesame_credit?: string;
+  registration_duration?: string;
+  seller_positive_ratings?: string;
+  seller_positive_rate?: string;
+  buyer_positive_ratings?: string;
+  buyer_positive_rate?: string;
+  seller_items?: any[]; // Define more strictly if needed
+  seller_ratings?: any[]; // Define more strictly if needed
 }
 
 export interface AiAnalysis {
@@ -94,11 +94,11 @@ export interface ResultInsights {
 }
 
 export interface ResultItem {
-  "爬取时间": string;
-  "搜索关键字": string;
-  "任务名称": string;
-  "商品信息": ProductInfo;
-  "卖家信息": SellerInfo;
+  scraped_at: string;
+  search_keyword: string;
+  task_name: string;
+  product_info: ProductInfo;
+  seller_info: SellerInfo;
   ai_analysis: AiAnalysis;
   price_insight?: PriceInsight;
 }

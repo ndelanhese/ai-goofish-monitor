@@ -1,5 +1,5 @@
 """
-闲鱼账号管理路由
+Goofish account management routes
 """
 import json
 import os
@@ -45,7 +45,7 @@ def _ensure_state_dir(path: str) -> None:
 def _validate_name(name: str) -> str:
     trimmed = name.strip()
     if not trimmed or not ACCOUNT_NAME_RE.match(trimmed):
-        raise HTTPException(status_code=400, detail="账号名称只能包含字母、数字、下划线或短横线。")
+        raise HTTPException(status_code=400, detail="Account name may only contain letters, digits, underscores, or hyphens.")
     return trimmed
 
 
@@ -58,7 +58,7 @@ def _validate_json(content: str) -> None:
     try:
         json.loads(content)
     except json.JSONDecodeError:
-        raise HTTPException(status_code=400, detail="提供的内容不是有效的JSON格式。")
+        raise HTTPException(status_code=400, detail="The provided content is not valid JSON.")
 
 
 @router.get("", response_model=List[dict])
@@ -82,7 +82,7 @@ async def get_account(name: str):
     account_name = _validate_name(name)
     path = _account_path(account_name)
     if not os.path.exists(path):
-        raise HTTPException(status_code=404, detail="账号不存在")
+        raise HTTPException(status_code=404, detail="Account not found")
     async with aiofiles.open(path, "r", encoding="utf-8") as f:
         content = await f.read()
     return {"name": account_name, "path": path, "content": content}
@@ -96,10 +96,10 @@ async def create_account(data: AccountCreate):
     _ensure_state_dir(state_dir)
     path = _account_path(account_name)
     if os.path.exists(path):
-        raise HTTPException(status_code=409, detail="账号已存在")
+        raise HTTPException(status_code=409, detail="Account already exists")
     async with aiofiles.open(path, "w", encoding="utf-8") as f:
         await f.write(data.content)
-    return {"message": "账号已添加", "name": account_name, "path": path}
+    return {"message": "Account added successfully", "name": account_name, "path": path}
 
 
 @router.put("/{name}", response_model=dict)
@@ -110,10 +110,10 @@ async def update_account(name: str, data: AccountUpdate):
     _ensure_state_dir(state_dir)
     path = _account_path(account_name)
     if not os.path.exists(path):
-        raise HTTPException(status_code=404, detail="账号不存在")
+        raise HTTPException(status_code=404, detail="Account not found")
     async with aiofiles.open(path, "w", encoding="utf-8") as f:
         await f.write(data.content)
-    return {"message": "账号已更新", "name": account_name, "path": path}
+    return {"message": "Account updated successfully", "name": account_name, "path": path}
 
 
 @router.delete("/{name}", response_model=dict)
@@ -121,6 +121,6 @@ async def delete_account(name: str):
     account_name = _validate_name(name)
     path = _account_path(account_name)
     if not os.path.exists(path):
-        raise HTTPException(status_code=404, detail="账号不存在")
+        raise HTTPException(status_code=404, detail="Account not found")
     os.remove(path)
-    return {"message": "账号已删除"}
+    return {"message": "Account deleted successfully"}

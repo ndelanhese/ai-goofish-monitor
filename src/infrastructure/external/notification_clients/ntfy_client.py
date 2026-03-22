@@ -1,5 +1,5 @@
 """
-Ntfy 通知客户端
+Ntfy notification client.
 """
 import asyncio
 import requests
@@ -8,7 +8,7 @@ from .base import NotificationClient
 
 
 class NtfyClient(NotificationClient):
-    """Ntfy 通知客户端"""
+    """Ntfy notification client."""
 
     channel_key = "ntfy"
     display_name = "Ntfy"
@@ -18,9 +18,9 @@ class NtfyClient(NotificationClient):
         self.topic_url = topic_url
 
     async def send(self, product_data: Dict, reason: str) -> None:
-        """发送 Ntfy 通知"""
+        """Send an Ntfy notification."""
         if not self.is_enabled():
-            raise RuntimeError("Ntfy 未启用")
+            raise RuntimeError("Ntfy is not enabled")
 
         message = self._build_message(product_data, reason)
         loop = asyncio.get_running_loop()

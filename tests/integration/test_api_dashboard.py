@@ -34,16 +34,16 @@ def test_dashboard_summary_aggregates_tasks_and_results(tmp_path, monkeypatch):
     client = TestClient(app)
 
     first = TaskCreate(
-      task_name="Apple Watch 任务",
+      task_name="Apple Watch Task",
       keyword="apple watch",
-      description="只关注价格合适且成色好的 Apple Watch。",
+      description="Only focus on Apple Watch with good price and condition.",
       max_pages=3,
       personal_only=True,
     )
     second = TaskCreate(
-      task_name="iPad 任务",
+      task_name="iPad Task",
       keyword="ipad pro",
-      description="关注 2024 款 iPad Pro。",
+      description="Focus on 2024 iPad Pro models.",
       max_pages=2,
       personal_only=True,
     )
@@ -57,35 +57,35 @@ def test_dashboard_summary_aggregates_tasks_and_results(tmp_path, monkeypatch):
 
     records = [
         {
-            "爬取时间": "2026-03-10T10:00:00",
-            "搜索关键字": "apple watch",
-            "任务名称": "Apple Watch 任务",
-            "商品信息": {
-                "商品ID": "watch-1",
-                "商品标题": "Apple Watch S10",
-                "商品链接": "https://www.goofish.com/item?id=watch-1",
-                "当前售价": "¥1800",
+            "scraped_at": "2026-03-10T10:00:00",
+            "search_keyword": "apple watch",
+            "task_name": "Apple Watch Task",
+            "product_info": {
+                "item_id": "watch-1",
+                "product_title": "Apple Watch S10",
+                "product_link": "https://www.goofish.com/item?id=watch-1",
+                "current_price": "¥1800",
             },
             "ai_analysis": {
                 "analysis_source": "ai",
                 "is_recommended": True,
-                "reason": "价格低于均价",
+                "reason": "Price is below market average",
             },
         },
         {
-            "爬取时间": "2026-03-10T11:00:00",
-            "搜索关键字": "apple watch",
-            "任务名称": "Apple Watch 任务",
-            "商品信息": {
-                "商品ID": "watch-2",
-                "商品标题": "Apple Watch S10 蜂窝版",
-                "商品链接": "https://www.goofish.com/item?id=watch-2",
-                "当前售价": "¥2100",
+            "scraped_at": "2026-03-10T11:00:00",
+            "search_keyword": "apple watch",
+            "task_name": "Apple Watch Task",
+            "product_info": {
+                "item_id": "watch-2",
+                "product_title": "Apple Watch S10 Cellular",
+                "product_link": "https://www.goofish.com/item?id=watch-2",
+                "current_price": "¥2100",
             },
             "ai_analysis": {
                 "analysis_source": "keyword",
                 "is_recommended": False,
-                "reason": "未命中规则",
+                "reason": "No rules matched",
             },
         },
     ]
@@ -105,19 +105,19 @@ def test_dashboard_summary_aggregates_tasks_and_results(tmp_path, monkeypatch):
     assert payload["focus_file"] == "apple_watch_full_data.jsonl"
 
     watch_summary = next(
-        item for item in payload["task_summaries"] if item["task_name"] == "Apple Watch 任务"
+        item for item in payload["task_summaries"] if item["task_name"] == "Apple Watch Task"
     )
     assert watch_summary["filename"] == "apple_watch_full_data.jsonl"
     assert watch_summary["total_items"] == 2
     assert watch_summary["latest_recommended_title"] == "Apple Watch S10"
 
     ipad_summary = next(
-        item for item in payload["task_summaries"] if item["task_name"] == "iPad 任务"
+        item for item in payload["task_summaries"] if item["task_name"] == "iPad Task"
     )
     assert ipad_summary["filename"] is None
     assert ipad_summary["is_running"] is True
 
     statuses = {item["status"] for item in payload["recent_activities"]}
-    assert "AI 推荐" in statuses
-    assert "结果已更新" in statuses
-    assert "运行中" in statuses
+    assert "AI Recommended" in statuses
+    assert "Results updated" in statuses
+    assert "Running" in statuses

@@ -1,6 +1,6 @@
 """
-通知服务
-统一管理所有通知渠道
+Notification service
+Unified management of all notification channels
 """
 import asyncio
 from typing import Dict, List
@@ -12,7 +12,7 @@ from src.infrastructure.config.settings import NotificationSettings
 
 
 class NotificationService:
-    """通知服务"""
+    """Notification service"""
 
     def __init__(self, clients: List[NotificationClient]):
         self.clients = [client for client in clients if client.is_enabled()]
@@ -23,10 +23,10 @@ class NotificationService:
         reason: str,
     ) -> Dict[str, Dict[str, str | bool]]:
         """
-        发送通知到所有启用的渠道
+        Send notifications to all enabled channels.
 
         Returns:
-            各渠道发送结果，包含成功状态和消息
+            Per-channel send results containing success status and message
         """
         if not self.clients:
             return {}
@@ -40,13 +40,13 @@ class NotificationService:
 
     async def send_test_notification(self) -> Dict[str, Dict[str, str | bool]]:
         test_product = {
-            "商品标题": "[测试通知] 闲鱼智能监控",
-            "当前售价": "0",
-            "商品链接": "https://www.goofish.com/",
+            "product_title": "[Test Notification] Goofish Monitor",
+            "current_price": "0",
+            "product_link": "https://www.goofish.com/",
         }
         return await self.send_notification(
             test_product,
-            "这是一条测试通知，用于验证推送渠道是否可用。",
+            "This is a test notification to verify that the push channel is working.",
         )
 
     async def _send_with_result(
@@ -61,7 +61,7 @@ class NotificationService:
                 "channel": client.channel_key,
                 "label": client.display_name,
                 "success": True,
-                "message": "发送成功",
+                "message": "Sent successfully",
             }
         except Exception as exc:
             return {

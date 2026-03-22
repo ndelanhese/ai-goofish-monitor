@@ -19,7 +19,7 @@ from tests.live._support import (
 )
 
 
-LIVE_SKIP_REASON = "真实流量 live smoke 默认关闭；请显式设置 RUN_LIVE_TESTS=1。"
+LIVE_SKIP_REASON = "Live smoke tests with real traffic are disabled by default; set RUN_LIVE_TESTS=1 to enable."
 
 
 def pytest_collection_modifyitems(config, items):
@@ -39,11 +39,11 @@ def live_settings():
     repo_root = Path(__file__).resolve().parents[2]
     settings = load_live_settings(repo_root)
     if not settings.account_source_path.exists():
-        pytest.fail(f"live 登录态文件不存在: {settings.account_source_path}")
+        pytest.fail(f"Live account state file does not exist: {settings.account_source_path}")
     if not settings.ai_test_payload.get("OPENAI_BASE_URL") or not settings.ai_test_payload.get(
         "OPENAI_MODEL_NAME"
     ):
-        pytest.fail("live 测试需要 OPENAI_BASE_URL 与 OPENAI_MODEL_NAME。")
+        pytest.fail("Live tests require OPENAI_BASE_URL and OPENAI_MODEL_NAME to be set.")
     return settings
 
 
@@ -93,6 +93,6 @@ def live_server(live_settings, request, tmp_path_factory):
         terminate_process(process)
         log_handle.close()
         if request.session.testsfailed:
-            print(f"live smoke 失败，保留工作目录供排查: {workspace}")
+            print(f"Live smoke tests failed; keeping workspace for inspection: {workspace}")
             return
         shutil.rmtree(workspace, ignore_errors=True)

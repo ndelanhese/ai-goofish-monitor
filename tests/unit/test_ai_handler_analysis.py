@@ -30,12 +30,12 @@ def test_get_ai_analysis_stops_after_internal_retries_when_content_is_none(
     monkeypatch.setattr(ai_handler, "ENABLE_RESPONSE_FORMAT", True)
     monkeypatch.setattr(app_config, "ENABLE_RESPONSE_FORMAT", True)
 
-    with pytest.raises(ValueError, match="AI响应内容为空"):
+    with pytest.raises(ValueError, match="AI response content is empty"):
         asyncio.run(
             ai_handler.get_ai_analysis(
-                {"商品信息": {"商品ID": "1", "商品标题": "测试商品"}},
+                {"product_info": {"item_id": "1", "product_title": "Test Item"}},
                 image_paths=[],
-                prompt_text="请输出 JSON",
+                prompt_text="Please output JSON",
             )
         )
 
@@ -51,7 +51,7 @@ def test_get_ai_analysis_returns_parsed_json(monkeypatch, tmp_path):
         return SimpleNamespace(
             output_text=(
                 '{"prompt_version":"v1","is_recommended":true,'
-                '"reason":"ok","risk_tags":[],"criteria_analysis":{"seller_type":"个人"}}'
+                '"reason":"ok","risk_tags":[],"criteria_analysis":{"seller_type":"individual"}}'
             )
         )
 
@@ -62,9 +62,9 @@ def test_get_ai_analysis_returns_parsed_json(monkeypatch, tmp_path):
 
     result = asyncio.run(
         ai_handler.get_ai_analysis(
-            {"商品信息": {"商品ID": "2", "商品标题": "测试商品2"}},
+            {"product_info": {"item_id": "2", "product_title": "Test Item 2"}},
             image_paths=[],
-            prompt_text="请输出 JSON",
+            prompt_text="Please output JSON",
         )
     )
 
@@ -93,7 +93,7 @@ def test_get_ai_analysis_retries_without_structured_output_when_model_rejects_it
                     message=SimpleNamespace(
                         content=(
                             '{"prompt_version":"v1","is_recommended":true,'
-                            '"reason":"ok","risk_tags":[],"criteria_analysis":{"seller_type":"个人"}}'
+                            '"reason":"ok","risk_tags":[],"criteria_analysis":{"seller_type":"individual"}}'
                         )
                     )
                 )
@@ -107,9 +107,9 @@ def test_get_ai_analysis_retries_without_structured_output_when_model_rejects_it
 
     result = asyncio.run(
         ai_handler.get_ai_analysis(
-            {"商品信息": {"商品ID": "3", "商品标题": "测试商品3"}},
+            {"product_info": {"item_id": "3", "product_title": "Test Item 3"}},
             image_paths=[],
-            prompt_text="请输出 JSON",
+            prompt_text="Please output JSON",
         )
     )
 
@@ -142,7 +142,7 @@ def test_get_ai_analysis_falls_back_to_responses_when_chat_completions_api_is_mi
         return SimpleNamespace(
             output_text=(
                 '{"prompt_version":"v1","is_recommended":true,'
-                '"reason":"ok","risk_tags":[],"criteria_analysis":{"seller_type":"个人"}}'
+                '"reason":"ok","risk_tags":[],"criteria_analysis":{"seller_type":"individual"}}'
             )
         )
 
@@ -157,9 +157,9 @@ def test_get_ai_analysis_falls_back_to_responses_when_chat_completions_api_is_mi
 
     result = asyncio.run(
         ai_handler.get_ai_analysis(
-            {"商品信息": {"商品ID": "4", "商品标题": "测试商品4"}},
+            {"product_info": {"item_id": "4", "product_title": "Test Item 4"}},
             image_paths=[],
-            prompt_text="请输出 JSON",
+            prompt_text="Please output JSON",
         )
     )
 
@@ -188,7 +188,7 @@ def test_get_ai_analysis_retries_without_temperature_when_gateway_rejects_it(
                     message=SimpleNamespace(
                         content=(
                             '{"prompt_version":"v1","is_recommended":true,'
-                            '"reason":"ok","risk_tags":[],"criteria_analysis":{"seller_type":"个人"}}'
+                            '"reason":"ok","risk_tags":[],"criteria_analysis":{"seller_type":"individual"}}'
                         )
                     )
                 )
@@ -202,9 +202,9 @@ def test_get_ai_analysis_retries_without_temperature_when_gateway_rejects_it(
 
     result = asyncio.run(
         ai_handler.get_ai_analysis(
-            {"商品信息": {"商品ID": "4", "商品标题": "测试商品4"}},
+            {"product_info": {"item_id": "4", "product_title": "Test Item 4"}},
             image_paths=[],
-            prompt_text="请输出 JSON",
+            prompt_text="Please output JSON",
         )
     )
 
@@ -221,8 +221,8 @@ def test_get_ai_analysis_uses_first_json_object_when_model_returns_multiple_obje
     async def fake_create(**_kwargs):
         return SimpleNamespace(
             output_text="""```json
-{"prompt_version":"v1","is_recommended":true,"reason":"first","risk_tags":[],"criteria_analysis":{"seller_type":"个人"}}
-{"prompt_version":"v1","is_recommended":false,"reason":"second","risk_tags":[],"criteria_analysis":{"seller_type":"商家"}}
+{"prompt_version":"v1","is_recommended":true,"reason":"first","risk_tags":[],"criteria_analysis":{"seller_type":"individual"}}
+{"prompt_version":"v1","is_recommended":false,"reason":"second","risk_tags":[],"criteria_analysis":{"seller_type":"business"}}
 ```"""
         )
 
@@ -233,9 +233,9 @@ def test_get_ai_analysis_uses_first_json_object_when_model_returns_multiple_obje
 
     result = asyncio.run(
         ai_handler.get_ai_analysis(
-            {"商品信息": {"商品ID": "5", "商品标题": "测试商品5"}},
+            {"product_info": {"item_id": "5", "product_title": "Test Item 5"}},
             image_paths=[],
-            prompt_text="请输出 JSON",
+            prompt_text="Please output JSON",
         )
     )
 

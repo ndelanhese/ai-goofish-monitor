@@ -1,5 +1,5 @@
 """
-通知配置读写与校验服务
+Notification settings read/write and validation service.
 """
 import json
 from urllib.parse import urlparse
@@ -58,7 +58,7 @@ ALLOWED_WEBHOOK_CONTENT_TYPES = {"JSON", "FORM"}
 
 
 class NotificationSettingsValidationError(ValueError):
-    """通知配置校验错误"""
+    """Notification settings validation error."""
 
 
 def model_dump(model, *, exclude_unset: bool = False) -> dict:
@@ -274,12 +274,12 @@ def _validate_notification_settings(settings: NotificationSettings) -> None:
     if settings.webhook_method not in ALLOWED_WEBHOOK_METHODS:
         allowed = ", ".join(sorted(ALLOWED_WEBHOOK_METHODS))
         raise NotificationSettingsValidationError(
-            f"WEBHOOK_METHOD 仅支持: {allowed}"
+            f"WEBHOOK_METHOD only supports: {allowed}"
         )
     if settings.webhook_content_type not in ALLOWED_WEBHOOK_CONTENT_TYPES:
         allowed = ", ".join(sorted(ALLOWED_WEBHOOK_CONTENT_TYPES))
         raise NotificationSettingsValidationError(
-            f"WEBHOOK_CONTENT_TYPE 仅支持: {allowed}"
+            f"WEBHOOK_CONTENT_TYPE only supports: {allowed}"
         )
 
     has_webhook_extras = any(
@@ -291,14 +291,14 @@ def _validate_notification_settings(settings: NotificationSettings) -> None:
     )
     if has_webhook_extras and not settings.webhook_url:
         raise NotificationSettingsValidationError(
-            "配置 Webhook 高级参数前必须先填写 WEBHOOK_URL"
+            "WEBHOOK_URL must be set before configuring advanced Webhook parameters"
         )
 
     if settings.webhook_content_type == "FORM" and settings.webhook_body:
         parsed_body = json.loads(settings.webhook_body)
         if not isinstance(parsed_body, dict):
             raise NotificationSettingsValidationError(
-                "WEBHOOK_BODY 在 FORM 模式下必须是 JSON 对象"
+                "WEBHOOK_BODY must be a JSON object in FORM mode"
             )
 
 
@@ -306,7 +306,7 @@ def _validate_http_url(field_name: str, value: str) -> None:
     parsed = urlparse(value)
     if parsed.scheme not in {"http", "https"} or not parsed.netloc:
         raise NotificationSettingsValidationError(
-            f"{field_name} 必须是合法的 HTTP/HTTPS URL"
+            f"{field_name} must be a valid HTTP/HTTPS URL"
         )
 
 
@@ -319,7 +319,7 @@ def _validate_pair(
     if bool(left_value) == bool(right_value):
         return
     raise NotificationSettingsValidationError(
-        f"{left_name} 与 {right_name} 必须成对配置"
+        f"{left_name} and {right_name} must be configured together"
     )
 
 
@@ -332,10 +332,10 @@ def _parse_json_field(
         parsed = json.loads(raw_value)
     except json.JSONDecodeError as exc:
         raise NotificationSettingsValidationError(
-            f"{field_name} 不是合法 JSON: {exc.msg}"
+            f"{field_name} is not valid JSON: {exc.msg}"
         ) from exc
     if expect_dict and not isinstance(parsed, dict):
         raise NotificationSettingsValidationError(
-            f"{field_name} 必须是 JSON 对象"
+            f"{field_name} must be a JSON object"
         )
     return parsed

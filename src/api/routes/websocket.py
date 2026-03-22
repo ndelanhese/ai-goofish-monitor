@@ -1,6 +1,6 @@
 """
-WebSocket 路由
-提供实时通信功能
+WebSocket routes
+Provides real-time communication functionality
 """
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from typing import Set
@@ -8,7 +8,7 @@ from typing import Set
 
 router = APIRouter()
 
-# 全局 WebSocket 连接管理
+# Global WebSocket connection manager
 active_connections: Set[WebSocket] = set()
 
 
@@ -16,34 +16,34 @@ active_connections: Set[WebSocket] = set()
 async def websocket_endpoint(
     websocket: WebSocket,
 ):
-    """WebSocket 端点"""
-    # 接受连接
+    """WebSocket endpoint"""
+    # Accept connection
     await websocket.accept()
     active_connections.add(websocket)
 
     try:
-        # 保持连接并接收消息
+        # Keep connection alive and receive messages
         while True:
-            # 接收客户端消息（如果有的话）
+            # Receive client messages (if any)
             data = await websocket.receive_text()
-            # 这里可以处理客户端发送的消息
-            # 目前我们主要用于服务端推送，所以暂时不处理
+            # Client messages can be processed here.
+            # Currently used primarily for server-side push, so no processing for now.
     except WebSocketDisconnect:
         active_connections.remove(websocket)
     except Exception as e:
-        print(f"WebSocket 错误: {e}")
+        print(f"WebSocket error: {e}")
         if websocket in active_connections:
             active_connections.remove(websocket)
 
 
 async def broadcast_message(message_type: str, data: dict):
-    """向所有连接的客户端广播消息"""
+    """Broadcast a message to all connected clients"""
     message = {
         "type": message_type,
         "data": data
     }
 
-    # 移除已断开的连接
+    # Collect disconnected connections
     disconnected = set()
 
     for connection in active_connections:
@@ -52,6 +52,6 @@ async def broadcast_message(message_type: str, data: dict):
         except Exception:
             disconnected.add(connection)
 
-    # 清理断开的连接
+    # Clean up disconnected connections
     for connection in disconnected:
         active_connections.discard(connection)

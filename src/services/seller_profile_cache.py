@@ -1,5 +1,5 @@
 """
-卖家资料缓存服务
+Seller profile cache service.
 """
 import asyncio
 import copy
@@ -18,7 +18,7 @@ class _CacheEntry:
 
 
 class SellerProfileCache:
-    """带 TTL 和并发合并的卖家资料缓存。"""
+    """Seller profile cache with TTL and in-flight request coalescing."""
 
     def __init__(
         self,

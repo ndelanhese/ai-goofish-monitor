@@ -1,6 +1,6 @@
 """
-关键词判断引擎：单组 OR 逻辑，命中任意关键词即推荐。
-纯英数字关键词按完整词匹配，避免 Q1 误命中 Q1R5。
+Keyword evaluation engine: single OR-group logic, any keyword match triggers recommendation.
+Pure alphanumeric keywords use full word matching to avoid Q1 accidentally matching Q1R5.
 """
 import re
 from typing import Any, Dict, Iterable, List
@@ -36,10 +36,10 @@ def _collect_text_fragments(value: Any, bucket: List[str]) -> None:
 
 def build_search_text(record: Dict[str, Any]) -> str:
     fragments: List[str] = []
-    product_info = record.get("商品信息", {})
-    seller_info = record.get("卖家信息", {})
+    product_info = record.get("product_info", {})
+    seller_info = record.get("seller_info", {})
 
-    _collect_text_fragments(product_info.get("商品标题"), fragments)
+    _collect_text_fragments(product_info.get("product_title"), fragments)
     _collect_text_fragments(product_info, fragments)
     _collect_text_fragments(seller_info, fragments)
 
@@ -77,7 +77,7 @@ def evaluate_keyword_rules(keywords: List[str], search_text: str) -> Dict[str, A
         return {
             "analysis_source": "keyword",
             "is_recommended": False,
-            "reason": "可匹配文本为空，关键词规则无法执行。",
+            "reason": "Matchable text is empty, keyword rules cannot be applied.",
             "matched_keywords": [],
             "keyword_hit_count": 0,
         }
@@ -86,7 +86,7 @@ def evaluate_keyword_rules(keywords: List[str], search_text: str) -> Dict[str, A
         return {
             "analysis_source": "keyword",
             "is_recommended": False,
-            "reason": "未配置关键词规则。",
+            "reason": "No keyword rules configured.",
             "matched_keywords": [],
             "keyword_hit_count": 0,
         }
@@ -96,9 +96,9 @@ def evaluate_keyword_rules(keywords: List[str], search_text: str) -> Dict[str, A
     is_recommended = hit_count > 0
 
     if is_recommended:
-        reason = f"命中 {hit_count} 个关键词：{', '.join(matched_keywords)}"
+        reason = f"Matched {hit_count} keyword(s): {', '.join(matched_keywords)}"
     else:
-        reason = "未命中任何关键词。"
+        reason = "No keywords matched."
 
     return {
         "analysis_source": "keyword",
